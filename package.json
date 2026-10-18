@@ -1,0 +1,11 @@
+{
+  "name": "ft_tally",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "ft_tally": "./bin/ft_tally.js"
+  }
+}
