@@ -1,3 +1,8 @@
 #!/usr/bin/env node
 
-console.log();
+function main() {
+  const args = process.argv.slice(2);
+  console.log(args);
+}
+
+main();
