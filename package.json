@@ -6,6 +6,6 @@
     "node": ">=22"
   },
   "bin": {
-    "ft_tally": "./bin/ft-tally.js"
+    "ft-tally": "./bin/ft-tally.js"
   }
 }
