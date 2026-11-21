@@ -1,4 +1,4 @@
-function parseHeader(line) {
+function parseLine(line) {
     const columns = [];
     let column = '';
     let inQuotes = false;
@@ -20,9 +20,9 @@ function parseHeader(line) {
 
 export function parseCsv(text) {
     const [headerLine, ...dataLines] = text.split(/\r?\n/);
-    const header = parseHeader(headerLine);
+    const header = parseLine(headerLine);
     const rows = dataLines.map((line) => {
-        const cells = line.split(',');
+        const cells = parseLine(line);
         return Object.fromEntries(header.map((column, index) => [column, cells[index]]));
     });
 

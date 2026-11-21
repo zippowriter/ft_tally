@@ -34,3 +34,12 @@ test('parseCsv は引用符で囲んだヘッダー名にカンマを含めら�
         rows: [{ id: '001', 'city,country': 'Tokyo' }],
     });
 });
+
+test('parseCsv は引用符で囲んだセルにカンマを含められる', () => {
+    const text = 'id,location,active\n001,"Tokyo,Japan",true';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'location', 'active'],
+        rows: [{ id: '001', location: 'Tokyo,Japan', active: 'true' }],
+    });
+});
