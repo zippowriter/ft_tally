@@ -13,3 +13,24 @@ test('parseCsv は LF 区切りの CSV を読み取り、セルの値を文字�
         ],
     });
 });
+
+test('parseCsv は CRLF 区切りの CSV を読み取る', () => {
+    const text = 'id,active\r\n001,false\r\n002,true';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'active'],
+        rows: [
+            { id: '001', active: 'false' },
+            { id: '002', active: 'true' },
+        ],
+    });
+});
+
+test('parseCsv は引用符で囲んだヘッダー名にカンマを含められる', () => {
+    const text = 'id,"city,country"\n001,Tokyo';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'city,country'],
+        rows: [{ id: '001', 'city,country': 'Tokyo' }],
+    });
+});
