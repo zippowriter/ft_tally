@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-console.log();
+import { parseCsv } from '../src/core/csv.js';
+
+console.log(parseCsv('hogehoge'));
