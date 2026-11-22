@@ -52,3 +52,12 @@ test('parseCsv は引用符で囲んだセルに改行を含められる', () =>
         rows: [{ id: '001', note: 'first line\nsecond line', active: 'true' }],
     });
 });
+
+test('parseCsv は引用符付きセル内の連続する二重引用符を1文字として読み取る', () => {
+    const text = 'id,note\n001,"He said ""hello""."';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'note'],
+        rows: [{ id: '001', note: 'He said "hello".' }],
+    });
+});

@@ -5,8 +5,11 @@ function parseRecords(text) {
     let inQuotes = false;
 
     const characters = text.match(/\r\n|./gsu) ?? [];
-    characters.forEach((character) => {
-        if (character === '"' && (inQuotes || column === '')) {
+    characters.forEach((character, index) => {
+        if (inQuotes && character === '"' && characters[index + 1] === '"') {
+            column += '"';
+            characters[index + 1] = ''; // The second quote is consumed by this pair.
+        } else if (character === '"' && (inQuotes || column === '')) {
             inQuotes = !inQuotes;
         } else if (character === ',' && !inQuotes) {
             columns.push(column);
