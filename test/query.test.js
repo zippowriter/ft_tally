@@ -34,3 +34,10 @@ test('where の分岐は独立し連続する条件をすべて適用する', ()
     assert.deepEqual(tv.run(), [rows[0], rows[2]]);
     assert.deepEqual(base.run(), rows);
 });
+
+test('groupBy と aggregate はグループごとの件数を返す', () => {
+    const rows = [{ genre: 'anime' }, { genre: 'news' }, { genre: 'anime' }];
+    const result = createQuery(rows).groupBy('genre').aggregate({ n: ['count'] }).run();
+
+    assert.deepEqual(result, [{ genre: 'anime', n: 2 }, { genre: 'news', n: 1 }]);
+});
