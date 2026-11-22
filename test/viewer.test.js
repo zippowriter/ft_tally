@@ -41,3 +41,4 @@ browserTest('render', 'ビューアは型推論した CSV をヘッダーとデ�
 browserTest('groups', 'ビューアは再読み込みせずにグループ化列の変更を反映する');
 browserTest('aggregates', 'ビューアは選んだ集計列と5種類の集計方法を反映する');
 browserTest('sort', 'ビューアは再描画した見出しでも表のイベント委譲で昇順と降順を切り替える');
+browserTest('text', 'ビューアは HTML に見えるヘッダーとセルを文字として表示する');

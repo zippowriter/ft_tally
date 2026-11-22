@@ -140,6 +140,14 @@
         expect(table.tHead.rows[0].cells[0].getAttribute('aria-sort') === 'ascending', '別の列は昇順から始める');
     });
 
+    await scenario('text', async (doc, win) => {
+        await loadCsv(doc, win, '<b>見出し</b>\n<img src=x>\n');
+        expectRows(doc, [['<b>見出し</b>'], ['<img src=x>']]);
+        expect(!doc.querySelector('#result b, #result img'), '表の文字列が DOM 要素に変換されない');
+        expect(doc.querySelector('#group-column').options[1].textContent === '<b>見出し</b>',
+            '選択肢でも元の文字列が保たれる');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>
