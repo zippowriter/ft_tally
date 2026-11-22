@@ -31,6 +31,14 @@ function assertSuccess(result, expected) {
     assert.equal(result.stdout, expected);
 }
 
+function assertFailure(result, message) {
+    assert.equal(result.status, 1);
+    assert.equal(result.signal, null);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, message);
+    assert.doesNotMatch(result.stderr, /\n\s+at /);
+}
+
 test('CLI は指定の CSV を読み込んで列幅を揃えた表を出す', (t) => {
     const result = runWithCsv(t, 'genre,minutes\nanime,5\ndocumentary,123\n');
 
@@ -113,4 +121,8 @@ test('CLI は課題文の使用例どおり集計済みの上位3件を表で出
         '--sort', 'sum_minutes:desc', '--limit', '3');
 
     assertSuccess(result, 'genre  sum_minutes\nanime        18230\ndrama        12004\nnews          3310\n');
+});
+
+test('CLI はファイル引数がないと使い方を標準エラー出力に出す', () => {
+    assertFailure(runCli(), /使い方.*<file\.csv>/);
 });

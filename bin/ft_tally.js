@@ -82,6 +82,9 @@ function outputColumns(header, { group, aggregates }) {
 }
 
 function main([file, ...args]) {
+    if (file === undefined || file.startsWith('--')) {
+        throw new Error('使い方: ft_tally <file.csv> [オプション]');
+    }
     const options = parseOptions(args);
     const { header, rows } = parseCsv(readFileSync(file, 'utf8'));
     const result = buildQuery(inferTypes(rows), options).run();
