@@ -43,3 +43,12 @@ test('parseCsv は引用符で囲んだセルにカンマを含められる', ()
         rows: [{ id: '001', location: 'Tokyo,Japan', active: 'true' }],
     });
 });
+
+test('parseCsv は引用符で囲んだセルに改行を含められる', () => {
+    const text = 'id,note,active\n001,"first line\nsecond line",true';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'note', 'active'],
+        rows: [{ id: '001', note: 'first line\nsecond line', active: 'true' }],
+    });
+});
