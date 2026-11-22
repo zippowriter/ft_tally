@@ -224,3 +224,12 @@ test('CLI の絞り込みでは空の値と等号を含む値を指定できる'
         assertSuccess(result, JSON.stringify([row], null, 2) + '\n');
     }
 });
+
+test('CLI の表では0件の場合もヘッダーを表示する', (t) => {
+    const csv = 'genre,minutes\nanime,5\n';
+    const want = 'genre  sum_minutes\n';
+    for (const format of [[], ['--format', 'table']]) {
+        const result = runWithCsv(t, csv, '--group-by', 'genre', '--sum', 'minutes', '--limit', '0', ...format);
+        assertSuccess(result, want);
+    }
+});
