@@ -25,3 +25,7 @@ test('inferValue は空白だけの文字列を欠損値に変換する', () => 
 test('inferValue は NaN と Infinity を文字列のまま返す', () => {
     assert.deepEqual(['NaN', 'Infinity'].map(inferValue), ['NaN', 'Infinity']);
 });
+
+test('inferValue は十六進表記を文字列のまま返す', () => {
+    assert.equal(inferValue('0x1F'), '0x1F');
+});
