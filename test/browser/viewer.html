@@ -19,6 +19,27 @@
         if (!condition) throw new Error(message);
     }
 
+    function setFile(doc, win, file) {
+        const transfer = new win.DataTransfer();
+        transfer.items.add(file);
+        const input = doc.querySelector('#csv-file');
+        input.files = transfer.files;
+        input.dispatchEvent(new win.Event('change', { bubbles: true }));
+    }
+
+    async function waitFor(condition, message) {
+        for (let attempt = 0; attempt < 100; attempt += 1) {
+            if (condition()) return;
+            await new Promise((resolve) => setTimeout(resolve, 10));
+        }
+        throw new Error(message);
+    }
+
+    async function loadCsv(doc, win, csv) {
+        setFile(doc, win, new win.File([csv], 'input.csv', { type: 'text/csv' }));
+        await waitFor(() => !doc.querySelector('#conditions').disabled, 'CSV の読み込み後に条件が有効になる');
+    }
+
     async function scenario(id, check) {
         const frame = await openViewer();
         try {
@@ -37,6 +58,15 @@
         expect(doc.querySelector('#group-column')?.matches(':disabled'), 'グループ化列は読み込みまで無効になる');
         expect(doc.querySelector('#aggregate-column')?.matches(':disabled'), '集計列は読み込みまで無効になる');
         expect(doc.querySelector('script[type=module][src="./app.js"]'), 'app.js を ES モジュールで読み込む');
+    });
+
+    await scenario('columns', async (doc, win) => {
+        await loadCsv(doc, win, 'genre,minutes\nanime,5\n');
+        for (const selector of ['#group-column', '#aggregate-column']) {
+            const labels = Array.from(doc.querySelector(selector).options).slice(1);
+            expect(labels.map((option) => option.textContent).join(',') === 'genre,minutes',
+                'ヘッダーの順序で両方の列を選べる');
+        }
     });
 
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
