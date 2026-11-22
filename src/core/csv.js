@@ -39,7 +39,7 @@ function parseRecords(text) {
 export function parseCsv(text) {
     const [{ cells: header }, ...dataRecords] = parseRecords(text);
     const rows = dataRecords.map(({ cells, line }) => {
-        if (cells.length < header.length) {
+        if (cells.length !== header.length) {
             throw new Error(`Expected ${header.length} columns, found ${cells.length} at line ${line}`);
         }
         return Object.fromEntries(header.map((column, index) => [column, cells[index]]));
