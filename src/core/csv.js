@@ -23,7 +23,7 @@ function parseRecords(text) {
             column += character;
         }
     });
-
+    if (!inQuotes && text.endsWith('\n')) return records;
     columns.push(column);
     records.push(columns);
     return records;

@@ -70,3 +70,12 @@ test('parseCsv は行末の空セルを空文字列として保持する', () =>
         rows: [{ id: '001', note: '' }, { id: '002', note: '' }],
     });
 });
+
+test('parseCsv はファイル末尾の改行で余分なレコードを作らない', () => {
+    const text = 'id,note\n001,hello\n';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'note'],
+        rows: [{ id: '001', note: 'hello' }],
+    });
+});
