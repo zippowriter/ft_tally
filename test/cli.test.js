@@ -62,3 +62,10 @@ test('CLI はグループごとの行数を数える', (t) => {
         { genre: 'anime', count: 2 }, { genre: 'news', count: 1 },
     ], null, 2) + '\n');
 });
+
+test('CLI の --sum は欠損値を除いた合計を返す', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime,8\nnews,\nanime,2\n',
+        '--sum', 'minutes', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([{ sum_minutes: 10 }], null, 2) + '\n');
+});
