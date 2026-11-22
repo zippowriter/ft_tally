@@ -48,3 +48,4 @@ browserTest('header-only', 'ビューアはヘッダーだけの CSV でも列�
 browserTest('replace', 'ビューアは別の CSV を選ぶと前の条件と並び順をリセットする');
 browserTest('read-error', 'ビューアは読込失敗を表示して次のファイルで復旧する');
 browserTest('race', 'ビューアは先に選んだファイルの読込結果が遅れても最後の結果を保つ');
+browserTest('alias', 'ビューアは集計名とグループ列名が重なっても両方を表示する');

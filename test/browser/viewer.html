@@ -239,6 +239,17 @@
         expect(errors.length === 0, '古い読み込みでも未捕捉の例外がない');
     });
 
+    await scenario('alias', async (doc, win) => {
+        await loadCsv(doc, win, 'count,sum_minutes,minutes\na,anime,5\nb,news,3\na,anime,2\n');
+        select(doc, win, '#group-column', '0');
+        select(doc, win, '#operation', 'count');
+        expectRows(doc, [['count', 'count_2'], ['a', '2'], ['b', '1']]);
+        select(doc, win, '#group-column', '1');
+        select(doc, win, '#aggregate-column', '2');
+        select(doc, win, '#operation', 'sum');
+        expectRows(doc, [['sum_minutes', 'sum_minutes_2'], ['anime', '7'], ['news', '3']]);
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

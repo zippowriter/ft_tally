@@ -65,7 +65,8 @@ function buildResult(data, ui) {
         return { query, columns: group === undefined ? data.header : [group], needsColumn };
     }
 
-    const alias = operation === 'count' ? 'count' : `${operation}_${column}`;
+    const baseAlias = operation === 'count' ? 'count' : `${operation}_${column}`;
+    const alias = group === baseAlias ? `${baseAlias}_2` : baseAlias;
     const columns = group === undefined ? [alias] : [group, alias];
     return { query: query.aggregate({ [alias]: [operation, column] }), columns, needsColumn };
 }
