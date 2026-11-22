@@ -46,6 +46,12 @@
         });
     }
 
+    function select(doc, win, selector, value) {
+        const element = doc.querySelector(selector);
+        element.value = value;
+        element.dispatchEvent(new win.Event('change', { bubbles: true }));
+    }
+
     function expectRows(doc, rows) {
         const actual = tableRows(doc);
         expect(JSON.stringify(actual) === JSON.stringify(rows),
@@ -85,6 +91,19 @@
         await loadCsv(doc, win, 'genre,minutes,active\nanime,1e3,true\nnews,,false\n');
         expect(!doc.querySelector('#result').hidden, '結果の表が表示される');
         expectRows(doc, [['genre', 'minutes', 'active'], ['anime', '1000', 'true'], ['news', '', 'false']]);
+    });
+
+    await scenario('groups', async (doc, win) => {
+        const csv = 'genre,minutes\nanime,3\nnews,2\nanime,3\n';
+        await loadCsv(doc, win, csv);
+        const table = doc.querySelector('#result');
+        select(doc, win, '#group-column', '0');
+        expectRows(doc, [['genre'], ['anime'], ['news']]);
+        select(doc, win, '#group-column', '1');
+        expectRows(doc, [['minutes'], ['3'], ['2']]);
+        select(doc, win, '#group-column', '');
+        expectRows(doc, [['genre', 'minutes'], ['anime', '3'], ['news', '2'], ['anime', '3']]);
+        expect(doc.querySelector('#result') === table && doc.defaultView === win, '同じページと表を使う');
     });
 
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));

@@ -1,4 +1,5 @@
 import { parseCsv } from '../src/core/csv.js';
+import { createQuery } from '../src/core/query.js';
 import { inferTypes } from '../src/core/types.js';
 
 function setColumnOptions(select, header) {
@@ -30,21 +31,33 @@ function renderTable(table, columns, rows) {
     table.hidden = false;
 }
 
+function renderResult(table, data, group) {
+    const column = group.value === '' ? undefined : data.header[Number(group.value)];
+    const base = createQuery(data.rows);
+    const query = column === undefined ? base : base.groupBy(column);
+    renderTable(table, column === undefined ? data.header : [column], query.run());
+}
+
 function initialize() {
     const fileInput = document.querySelector('#csv-file');
     const conditions = document.querySelector('#conditions');
     const group = document.querySelector('#group-column');
     const aggregate = document.querySelector('#aggregate-column');
     const table = document.querySelector('#result');
+    let data;
 
     fileInput.addEventListener('change', async () => {
         const file = fileInput.files[0];
         if (!file) return;
         const { header, rows } = parseCsv(await file.text());
+        data = { header, rows: inferTypes(rows) };
         setColumnOptions(group, header);
         setColumnOptions(aggregate, header);
-        renderTable(table, header, inferTypes(rows));
+        renderResult(table, data, group);
         conditions.disabled = false;
+    });
+    conditions.addEventListener('change', () => {
+        if (data) renderResult(table, data, group);
     });
     fileInput.disabled = false;
 }
