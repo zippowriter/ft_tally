@@ -31,29 +31,46 @@ function readOption(options, flag, value) {
     switch (flag) {
         case '--format': options.format = value; break;
         case '--where': options.filters.push(parseWhere(value)); break;
+        case '--group-by': options.group = value; break;
         default: throw new Error(`不正なオプション: ${flag}`);
     }
 }
 
 function parseOptions(args) {
-    const options = { format: 'table', filters: [] };
-    for (let index = 0; index < args.length; index += 2) {
-        readOption(options, args[index], args[index + 1]);
+    const options = { format: 'table', filters: [], aggregates: new Map() };
+    for (let index = 0; index < args.length; index += 1) {
+        const flag = args[index];
+        if (flag === '--count') {
+            options.aggregates.set('count', ['count']);
+        } else {
+            readOption(options, flag, args[index + 1]);
+            index += 1;
+        }
     }
     return options;
 }
 
 function buildQuery(rows, options) {
-    return options.filters.reduce((query, [column, value]) => {
+    let query = options.filters.reduce((query, [column, value]) => {
         return query.where((row) => row[column] === value);
     }, createQuery(rows));
+    if (options.group !== undefined) query = query.groupBy(options.group);
+    if (options.aggregates.size > 0) query = query.aggregate(Object.fromEntries(options.aggregates));
+    return query;
+}
+
+function outputColumns(header, { group, aggregates }) {
+    if (group !== undefined) return [group, ...aggregates.keys()];
+    return aggregates.size === 0 ? header : Array.from(aggregates.keys());
 }
 
 function main([file, ...args]) {
     const options = parseOptions(args);
     const { header, rows } = parseCsv(readFileSync(file, 'utf8'));
     const result = buildQuery(inferTypes(rows), options).run();
-    const output = options.format === 'json' ? JSON.stringify(result, null, 2) : formatTable(header, result);
+    const output = options.format === 'json'
+        ? JSON.stringify(result, null, 2)
+        : formatTable(outputColumns(header, options), result);
     process.stdout.write(`${output}\n`);
 }
 

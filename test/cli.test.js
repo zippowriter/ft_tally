@@ -53,3 +53,12 @@ test('CLI の複数の絞り込み条件は型推論した値を比較する', (
 
     assertSuccess(result, JSON.stringify([{ device: 'tv', active: true, minutes: 1000 }], null, 2) + '\n');
 });
+
+test('CLI はグループごとの行数を数える', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime,7\nnews,4\nanime,\n',
+        '--group-by', 'genre', '--count', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([
+        { genre: 'anime', count: 2 }, { genre: 'news', count: 1 },
+    ], null, 2) + '\n');
+});
