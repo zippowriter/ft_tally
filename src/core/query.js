@@ -5,6 +5,7 @@ function sum(values) {
 function calculate(rows, operation, column) {
     if (operation === 'count') return rows.length;
     const values = rows.map((row) => row[column]).filter((value) => value !== null);
+    if (operation === 'avg') return values.length === 0 ? null : sum(values) / values.length;
     return sum(values);
 }
 

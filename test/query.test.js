@@ -52,3 +52,14 @@ test('sum は欠損値を除いた数値を合計する', () => {
 
     assert.deepEqual(result, [{ genre: 'anime', total: 4.5 }]);
 });
+
+test('avg は欠損値を件数に含めず平均を返す', () => {
+    const rows = [
+        { genre: 'anime', minutes: 0 },
+        { genre: 'anime', minutes: 5 },
+        { genre: 'anime', minutes: null },
+    ];
+    const result = createQuery(rows).groupBy('genre').aggregate({ mean: ['avg', 'minutes'] }).run();
+
+    assert.deepEqual(result, [{ genre: 'anime', mean: 2.5 }]);
+});
