@@ -63,3 +63,14 @@ test('avg は欠損値を件数に含めず平均を返す', () => {
 
     assert.deepEqual(result, [{ genre: 'anime', mean: 2.5 }]);
 });
+
+test('min は欠損値を除いた最小値を返す', () => {
+    const rows = [
+        { genre: 'anime', minutes: 5 },
+        { genre: 'anime', minutes: null },
+        { genre: 'anime', minutes: 2 },
+    ];
+    const result = createQuery(rows).groupBy('genre').aggregate({ low: ['min', 'minutes'] }).run();
+
+    assert.deepEqual(result, [{ genre: 'anime', low: 2 }]);
+});
