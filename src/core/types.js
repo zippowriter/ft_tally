@@ -15,3 +15,7 @@ export function inferTypes(rows) {
         Object.entries(row).map(([column, text]) => [column, inferValue(text)]),
     ));
 }
+
+export function isNumericColumn(values) {
+    return values.every(Number.isFinite);
+}

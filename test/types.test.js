@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { parseCsv } from '../src/core/csv.js';
-import { inferTypes, inferValue } from '../src/core/types.js';
+import { inferTypes, inferValue, isNumericColumn } from '../src/core/types.js';
 
 test('inferValue は十進整数の文字列を数値に変換する', () => {
     assert.deepEqual(['42', '7'].map(inferValue), [42, 7]);
@@ -54,4 +54,8 @@ test('inferTypes は CSV の行順と列名を保ち各セルを変換する', (
         { 値: '7', 表示: 'true', 備考: '東京' },
         { 値: '保留', 表示: 'false', 備考: '' },
     ]);
+});
+
+test('isNumericColumn は数値だけの列を数値列と判定する', () => {
+    assert.equal(isNumericColumn([0, -3.5, 7]), true);
 });
