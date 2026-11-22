@@ -240,3 +240,14 @@ test('CLI の表は全角文字の列幅を揃え制御文字を1行に収める
 
     assertSuccess(result, '地域  値\n京    A\n大阪  B\\nC\\tD\ne\u0301     E\n');
 });
+
+test('CLI は集計名とグループ列が重なる場合も両方の値を保持する', (t) => {
+    const csv = 'sum_minutes,minutes,minutes_2\nanime,4,1\nnews,1,3\nanime,5,2\n';
+    const result = runWithCsv(t, csv, '--group-by', 'sum_minutes', '--sum', 'minutes',
+        '--sum', 'minutes_2', '--sort', 'sum_minutes_3:desc', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([
+        { sum_minutes: 'anime', sum_minutes_3: 9, sum_minutes_2: 3 },
+        { sum_minutes: 'news', sum_minutes_3: 1, sum_minutes_2: 3 },
+    ], null, 2) + '\n');
+});

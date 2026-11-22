@@ -91,6 +91,16 @@ function valueOptions(options) {
     return handlers;
 }
 
+function resolveAggregateAliases(group, aggregates) {
+    if (!aggregates.has(group)) return aggregates;
+
+    let suffix = 2;
+    while (aggregates.has(`${group}_${suffix}`)) suffix += 1;
+    return new Map(Array.from(aggregates, ([alias, definition]) => [
+        alias === group ? `${group}_${suffix}` : alias, definition,
+    ]));
+}
+
 function parseOptions(args) {
     const options = { format: 'table', filters: [], aggregates: new Map() };
     const handlers = valueOptions(options);
@@ -109,6 +119,7 @@ function parseOptions(args) {
             index += 1;
         }
     }
+    options.aggregates = resolveAggregateAliases(options.group, options.aggregates);
     return options;
 }
 
