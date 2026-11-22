@@ -177,3 +177,10 @@ test('CLI は列名や方向が不正な並べ替え指定を拒否する', (t) 
         assertFailure(result, /--sort.*col:asc/);
     }
 });
+
+test('CLI は安全な非負の十進整数でない件数を拒否する', (t) => {
+    for (const maximum of ['-1', '1.5', '1e3', '9007199254740992', '']) {
+        const result = runWithCsv(t, 'genre\nanime\n', '--limit', maximum);
+        assertFailure(result, /--limit.*整数/);
+    }
+});

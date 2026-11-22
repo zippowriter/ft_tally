@@ -42,13 +42,21 @@ function parseFormat(value) {
     return value;
 }
 
+function parseLimit(text) {
+    const maximum = Number(text);
+    if (!/^\d+$/.test(text) || !Number.isSafeInteger(maximum)) {
+        throw new Error('--limit は安全な範囲の0以上の十進整数で指定してください');
+    }
+    return maximum;
+}
+
 function valueOptions(options) {
     const handlers = new Map([
         ['--format', (value) => { options.format = parseFormat(value); }],
         ['--where', (value) => { options.filters.push(parseWhere(value)); }],
         ['--group-by', (value) => { options.group = value; }],
         ['--sort', (value) => { options.sort = parseSort(value); }],
-        ['--limit', (value) => { options.maximum = Number(value); }],
+        ['--limit', (value) => { options.maximum = parseLimit(value); }],
     ]);
     for (const operation of ['sum', 'avg', 'min', 'max']) {
         handlers.set(`--${operation}`, (column) => {
