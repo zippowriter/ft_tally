@@ -170,3 +170,10 @@ test('CLI は列名と等号が揃っていない絞り込み条件を拒否す�
         assertFailure(result, /--where.*col=value/);
     }
 });
+
+test('CLI は列名や方向が不正な並べ替え指定を拒否する', (t) => {
+    for (const order of ['genre', 'genre:', ':asc', 'genre:up']) {
+        const result = runWithCsv(t, 'genre\nanime\n', '--sort', order);
+        assertFailure(result, /--sort.*col:asc/);
+    }
+});

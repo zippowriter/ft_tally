@@ -30,7 +30,11 @@ function parseWhere(text) {
 
 function parseSort(text) {
     const separator = text.lastIndexOf(':');
-    return [text.slice(0, separator), text.slice(separator + 1)];
+    const direction = text.slice(separator + 1);
+    if (separator < 1 || (direction !== 'asc' && direction !== 'desc')) {
+        throw new Error('--sort は col:asc または col:desc の形式で指定してください');
+    }
+    return [text.slice(0, separator), direction];
 }
 
 function parseFormat(value) {
