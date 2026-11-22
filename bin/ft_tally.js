@@ -21,9 +21,24 @@ function formatTable(columns, rows) {
     }).join('  ')).join('\n');
 }
 
-function main([file]) {
+function readOption(options, flag, value) {
+    if (flag === '--format') options.format = value;
+    else throw new Error(`不正なオプション: ${flag}`);
+}
+
+function parseOptions(args) {
+    const options = { format: 'table' };
+    for (let index = 0; index < args.length; index += 2) {
+        readOption(options, args[index], args[index + 1]);
+    }
+    return options;
+}
+
+function main([file, ...args]) {
+    const options = parseOptions(args);
     const { header, rows } = parseCsv(readFileSync(file, 'utf8'));
-    const output = formatTable(header, inferTypes(rows));
+    const typed = inferTypes(rows);
+    const output = options.format === 'json' ? JSON.stringify(typed, null, 2) : formatTable(header, typed);
     process.stdout.write(`${output}\n`);
 }
 

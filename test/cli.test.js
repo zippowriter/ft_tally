@@ -36,3 +36,12 @@ test('CLI は指定の CSV を読み込んで列幅を揃えた表を出す', (t
 
     assertSuccess(result, 'genre        minutes\nanime              5\ndocumentary      123\n');
 });
+
+test('CLI は型推論済みの行を整形済み JSON で出す', (t) => {
+    const result = runWithCsv(t, 'minutes,active,note\n1e3,true,\n-2.5,false,保留\n', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([
+        { minutes: 1000, active: true, note: null },
+        { minutes: -2.5, active: false, note: '保留' },
+    ], null, 2) + '\n');
+});
