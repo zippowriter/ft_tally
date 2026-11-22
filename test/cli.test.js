@@ -133,3 +133,9 @@ test('CLI は存在しないファイルを標準エラー出力と終了コー�
 
     assertFailure(runCli(join(directory, 'missing.csv')), /ENOENT.*missing\.csv/);
 });
+
+test('CLI は不正な CSV のエラーに行番号を含める', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime\n');
+
+    assertFailure(result, /line 2/);
+});
