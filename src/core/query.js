@@ -15,15 +15,25 @@ function calculate(rows, operation, column) {
 }
 
 function summarize(rows, aggregates) {
-    return Object.fromEntries(aggregates.map(([alias, [operation, column]]) => [
+    return Object.fromEntries(aggregates.map(({ alias, operation, column }) => [
         alias, calculate(rows, operation, column),
     ]));
 }
 
+function prepareAggregates(specification) {
+    const supported = ['count', 'sum', 'avg', 'min', 'max'];
+    return Object.entries(specification).map(([alias, [operation, column]]) => {
+        if (!supported.includes(operation)) {
+            throw new Error(`未知の集計関数: ${operation}`);
+        }
+        return { alias, operation, column };
+    });
+}
+
 function validateNumericColumns(rows, aggregates) {
     const columns = aggregates
-        .filter(([, [operation]]) => operation !== 'count')
-        .map(([, [, column]]) => column);
+        .filter(({ operation }) => operation !== 'count')
+        .map(({ column }) => column);
     Array.from(new Set(columns)).forEach((column) => {
         if (!isNumericColumn(rows.map((row) => row[column]))) {
             throw new Error(`数値列ではありません: ${column}`);
@@ -73,7 +83,7 @@ function buildQuery(rows, options) {
         groupBy: (groupColumn) => buildQuery(rows, { ...options, groupColumn }),
         aggregate: (specification) => buildQuery(rows, {
             ...options,
-            aggregates: Object.entries(specification).map(([alias, fields]) => [alias, [...fields]]),
+            aggregates: prepareAggregates(specification),
         }),
         sortBy: (column, direction = 'asc') => buildQuery(rows, {
             ...options, sort: [column, direction],

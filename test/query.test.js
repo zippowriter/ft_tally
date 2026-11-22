@@ -221,3 +221,9 @@ test('sortBy は方向省略時に文字列を昇順に並べ同値の順序と�
     assert.deepEqual(base.sortBy('genre').run(), [rows[2], rows[0], rows[3], rows[1]]);
     assert.deepEqual(base.sortBy('genre', 'desc').run(), [rows[0], rows[3], rows[2], rows[1]]);
 });
+
+test('未知の集計関数を指定すると関数名を含むエラーになる', () => {
+    const base = createQuery([{ minutes: 4 }]);
+
+    assert.throws(() => base.aggregate({ value: ['median', 'minutes'] }).run(), /median/);
+});
