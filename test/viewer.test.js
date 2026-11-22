@@ -46,3 +46,4 @@ browserTest('parse-error', 'ビューアは不正な CSV の行番号を表示�
 browserTest('query-error', 'ビューアは数値集計のエラーを表示し条件を直すと復旧する');
 browserTest('header-only', 'ビューアはヘッダーだけの CSV でも列を表示する');
 browserTest('replace', 'ビューアは別の CSV を選ぶと前の条件と並び順をリセットする');
+browserTest('read-error', 'ビューアは読込失敗を表示して次のファイルで復旧する');

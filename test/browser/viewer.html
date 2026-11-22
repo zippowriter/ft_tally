@@ -203,6 +203,21 @@
         expect(doc.querySelector('#aggregate-column').options[2].textContent === 'score', '列が更新される');
     });
 
+    await scenario('read-error', async (doc, win) => {
+        const errors = captureErrors(win);
+        const original = win.File.prototype.text;
+        win.File.prototype.text = async function () {
+            throw new win.Error('ファイルを読み取れません');
+        };
+        setFile(doc, win, new win.File([], 'unreadable.csv'));
+        await waitFor(() => /読み取れません/.test(visibleError(doc)), '読み込みエラーが表示される');
+        win.File.prototype.text = original;
+        await loadCsv(doc, win, 'genre\nanime\n');
+        expect(visibleError(doc) === '', '新しいファイルでエラーが消える');
+        expectRows(doc, [['genre'], ['anime']]);
+        expect(errors.length === 0, '未捕捉の例外がない');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>
