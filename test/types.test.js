@@ -85,3 +85,8 @@ test('inferValue は変換候補の前後に空白があると文字列を保持
 test('inferValue は符号と小数点と指数の十進表記を扱う', () => {
     assert.deepEqual(['+42', '.5', '1.', '2E-1'].map(inferValue), [42, 0.5, 1, 0.2]);
 });
+
+test('inferValue は有限な数値に変換できない十進表記を文字列のまま返す', () => {
+    const cells = ['1e309', '-1e309'];
+    assert.deepEqual(cells.map(inferValue), cells);
+});

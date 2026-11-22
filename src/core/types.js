@@ -5,7 +5,8 @@ export function inferValue(text) {
 
     const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
     if (decimal.test(text)) {
-        return Number(text);
+        const value = Number(text);
+        if (Number.isFinite(value)) return value;
     }
     return text;
 }
