@@ -9,3 +9,9 @@ export function inferValue(text) {
     }
     return text;
 }
+
+export function inferTypes(rows) {
+    return rows.map((row) => Object.fromEntries(
+        Object.entries(row).map(([column, text]) => [column, inferValue(text)]),
+    ));
+}

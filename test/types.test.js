@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { inferValue } from '../src/core/types.js';
+import { parseCsv } from '../src/core/csv.js';
+import { inferTypes, inferValue } from '../src/core/types.js';
 
 test('inferValue は十進整数の文字列を数値に変換する', () => {
     assert.deepEqual(['42', '7'].map(inferValue), [42, 7]);
@@ -40,4 +41,17 @@ test('inferValue は true と false を真偽値に変換する', () => {
 
 test('inferValue は通常の文字列の前後の空白を保持する', () => {
     assert.equal(inferValue('  Tokyo  '), '  Tokyo  ');
+});
+
+test('inferTypes は CSV の行順と列名を保ち各セルを変換する', () => {
+    const { rows } = parseCsv('値,表示,備考\n7,true,東京\n保留,false,');
+
+    assert.deepEqual(inferTypes(rows), [
+        { 値: 7, 表示: true, 備考: '東京' },
+        { 値: '保留', 表示: false, 備考: null },
+    ]);
+    assert.deepEqual(rows, [
+        { 値: '7', 表示: 'true', 備考: '東京' },
+        { 値: '保留', 表示: 'false', 備考: '' },
+    ]);
 });
