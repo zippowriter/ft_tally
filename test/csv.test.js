@@ -61,3 +61,12 @@ test('parseCsv は引用符付きセル内の連続する二重引用符を1文�
         rows: [{ id: '001', note: 'He said "hello".' }],
     });
 });
+
+test('parseCsv は行末の空セルを空文字列として保持する', () => {
+    const text = 'id,note\n001,\n002,';
+
+    assert.deepEqual(parseCsv(text), {
+        header: ['id', 'note'],
+        rows: [{ id: '001', note: '' }, { id: '002', note: '' }],
+    });
+});
