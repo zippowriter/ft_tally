@@ -208,3 +208,16 @@ test('入力と集計指定と述語に渡る行と実行結果からクエリ�
     assert.deepEqual(base.run(), [{ genre: 'anime', minutes: 4 }]);
     assert.deepEqual(summary.run(), [{ genre: 'anime', total: 4 }]);
 });
+
+test('sortBy は方向省略時に文字列を昇順に並べ同値の順序と欠損値の末尾を保つ', () => {
+    const rows = [
+        { id: 1, genre: 'news' },
+        { id: 2, genre: null },
+        { id: 3, genre: 'anime' },
+        { id: 4, genre: 'news' },
+    ];
+    const base = createQuery(rows);
+
+    assert.deepEqual(base.sortBy('genre').run(), [rows[2], rows[0], rows[3], rows[1]]);
+    assert.deepEqual(base.sortBy('genre', 'desc').run(), [rows[0], rows[3], rows[2], rows[1]]);
+});

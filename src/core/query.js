@@ -45,13 +45,17 @@ function selectRows(rows, { predicates, groupColumn, aggregates }) {
     }));
 }
 
+function compareValues(left, right, sign) {
+    if (left === right) return 0;
+    if (left === null || left === undefined) return 1;
+    if (right === null || right === undefined) return -1;
+    if (typeof left !== typeof right) return typeof left < typeof right ? -sign : sign;
+    return left < right ? -sign : sign;
+}
+
 function sortRows(rows, [column, direction]) {
     const sign = direction === 'desc' ? -1 : 1;
-    return rows.toSorted((left, right) => {
-        if (left[column] < right[column]) return -sign;
-        if (left[column] > right[column]) return sign;
-        return 0;
-    });
+    return rows.toSorted((left, right) => compareValues(left[column], right[column], sign));
 }
 
 function runQuery(rows, options) {
@@ -71,7 +75,9 @@ function buildQuery(rows, options) {
             ...options,
             aggregates: Object.entries(specification).map(([alias, fields]) => [alias, [...fields]]),
         }),
-        sortBy: (column, direction) => buildQuery(rows, { ...options, sort: [column, direction] }),
+        sortBy: (column, direction = 'asc') => buildQuery(rows, {
+            ...options, sort: [column, direction],
+        }),
         limit: (maximum) => buildQuery(rows, { ...options, maximum }),
         run: () => runQuery(rows, options),
     };
