@@ -76,3 +76,10 @@ test('CLI の --avg は欠損値を除いた平均を返す', (t) => {
 
     assertSuccess(result, JSON.stringify([{ avg_minutes: 5 }], null, 2) + '\n');
 });
+
+test('CLI の --min は欠損値を除いた最小値を返す', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime,8\nnews,\nanime,2\n',
+        '--min', 'minutes', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([{ min_minutes: 2 }], null, 2) + '\n');
+});

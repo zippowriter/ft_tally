@@ -33,7 +33,8 @@ function readOption(options, flag, value) {
         case '--where': options.filters.push(parseWhere(value)); break;
         case '--group-by': options.group = value; break;
         case '--sum':
-        case '--avg': {
+        case '--avg':
+        case '--min': {
             const operation = flag.slice(2);
             options.aggregates.set(`${operation}_${value}`, [operation, value]);
             break;
