@@ -76,3 +76,8 @@ test('isNumericColumn は非欠損値がない列を数値列と判定する', (
     assert.equal(isNumericColumn([null, null]), true);
     assert.equal(isNumericColumn([]), true);
 });
+
+test('inferValue は変換候補の前後に空白があると文字列を保持する', () => {
+    const cells = [' 42 ', '42\n', ' true ', '\tfalse'];
+    assert.deepEqual(cells.map(inferValue), cells);
+});
