@@ -95,7 +95,12 @@ function buildQuery(rows, options) {
         sortBy: (column, direction = 'asc') => buildQuery(rows, {
             ...options, sort: [column, direction],
         }),
-        limit: (maximum) => buildQuery(rows, { ...options, maximum }),
+        limit: (maximum) => {
+            if (!Number.isInteger(maximum) || maximum < 0) {
+                throw new Error('件数制限は0以上の整数で指定してください');
+            }
+            return buildQuery(rows, { ...options, maximum });
+        },
         run: () => runQuery(rows, options),
     };
 }

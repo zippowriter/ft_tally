@@ -239,3 +239,11 @@ test('不正な並べ替え方向を指定するとエラーになる', () => {
 
     assert.throws(() => base.sortBy('minutes', 'up').run(), /並べ替え方向/);
 });
+
+test('負数と小数と数値でない件数制限を指定するとエラーになる', () => {
+    const base = createQuery([{ minutes: 4 }, { minutes: 2 }]);
+
+    for (const maximum of [-1, 1.5, '1', NaN, Infinity]) {
+        assert.throws(() => base.limit(maximum).run(), /件数制限/);
+    }
+});
