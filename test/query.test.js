@@ -7,3 +7,11 @@ test('run は条件を指定しないと入力順に全行を返す', () => {
 
     assert.deepEqual(createQuery(rows).run(), rows);
 });
+
+test('where は述語を満たす行だけを返す', () => {
+    const rows = [{ device: 'tv' }, { device: 'pc' }, { device: 'tv' }];
+
+    assert.deepEqual(createQuery(rows).where((row) => row.device === 'tv').run(), [
+        rows[0], rows[2],
+    ]);
+});

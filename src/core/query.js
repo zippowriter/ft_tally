@@ -1,5 +1,10 @@
-export function createQuery(rows) {
+function buildQuery(rows, predicates) {
     return {
-        run: () => rows.slice(),
+        where: (predicate) => buildQuery(rows, [...predicates, predicate]),
+        run: () => rows.filter((row) => predicates.every((predicate) => predicate(row))),
     };
+}
+
+export function createQuery(rows) {
+    return buildQuery(rows, []);
 }
