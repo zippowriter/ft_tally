@@ -139,3 +139,11 @@ test('CLI は不正な CSV のエラーに行番号を含める', (t) => {
 
     assertFailure(result, /line 2/);
 });
+
+test('CLI は未知のオプションと余分な位置引数を拒否する', (t) => {
+    for (const argument of ['--unknown', 'extra.csv']) {
+        const result = runWithCsv(t, 'genre\nanime\n', argument);
+        assertFailure(result, /不正なオプション/);
+        assert.ok(result.stderr.includes(argument));
+    }
+});
