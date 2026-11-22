@@ -60,13 +60,17 @@ function selectRows(rows, { predicates, groupColumn, aggregates }) {
 
 function compareValues(left, right, sign) {
     if (left === right) return 0;
-    if (left === null || left === undefined) return 1;
-    if (right === null || right === undefined) return -1;
+    const leftMissing = left === null || left === undefined;
+    const rightMissing = right === null || right === undefined;
+    if (leftMissing || rightMissing) return Number(leftMissing) - Number(rightMissing);
     if (typeof left !== typeof right) return typeof left < typeof right ? -sign : sign;
     return left < right ? -sign : sign;
 }
 
 function sortRows(rows, [column, direction]) {
+    if (direction !== 'asc' && direction !== 'desc') {
+        throw new Error(`不正な並べ替え方向: ${direction}`);
+    }
     const sign = direction === 'desc' ? -1 : 1;
     return rows.toSorted((left, right) => compareValues(left[column], right[column], sign));
 }

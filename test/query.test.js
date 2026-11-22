@@ -233,3 +233,9 @@ test('集計対象に存在しない列を指定すると列名を含むエラ�
 
     assert.throws(() => base.aggregate({ total: ['sum', 'seconds'] }).run(), /未知の列: seconds/);
 });
+
+test('不正な並べ替え方向を指定するとエラーになる', () => {
+    const base = createQuery([{ minutes: 4 }, { minutes: 2 }]);
+
+    assert.throws(() => base.sortBy('minutes', 'up').run(), /並べ替え方向/);
+});
