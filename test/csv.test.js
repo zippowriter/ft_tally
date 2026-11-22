@@ -97,3 +97,9 @@ test('parseCsv は列が多いレコードのエラーに開始行を含める',
 
     assert.throws(() => parseCsv(text), /\bline 3\b/);
 });
+
+test('parseCsv は複数行のレコードの直後にある列不足を4行目として報告する', () => {
+    const text = 'id,note\n001,"first line\nsecond line"\n002';
+
+    assert.throws(() => parseCsv(text), /\bline 4\b/);
+});
