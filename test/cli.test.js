@@ -98,3 +98,11 @@ test('CLI の並べ替えは入力列の数値を昇順と降順に並べる', (
         assertSuccess(result, JSON.stringify(values.map((minutes) => ({ minutes })), null, 2) + '\n');
     }
 });
+
+test('CLI の件数制限は並べ替え後に適用し0件も扱う', (t) => {
+    const csv = 'minutes\n2\n10\n3\n';
+    for (const [maximum, rows] of [['1', [{ minutes: 10 }]], ['0', []]]) {
+        const result = runWithCsv(t, csv, '--limit', maximum, '--sort', 'minutes:desc', '--format', 'json');
+        assertSuccess(result, JSON.stringify(rows, null, 2) + '\n');
+    }
+});

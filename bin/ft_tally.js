@@ -38,6 +38,7 @@ function readOption(options, flag, value) {
         case '--where': options.filters.push(parseWhere(value)); break;
         case '--group-by': options.group = value; break;
         case '--sort': options.sort = parseSort(value); break;
+        case '--limit': options.maximum = Number(value); break;
         case '--sum':
         case '--avg':
         case '--min':
@@ -71,6 +72,7 @@ function buildQuery(rows, options) {
     if (options.group !== undefined) query = query.groupBy(options.group);
     if (options.aggregates.size > 0) query = query.aggregate(Object.fromEntries(options.aggregates));
     if (options.sort !== undefined) query = query.sortBy(...options.sort);
+    if (options.maximum !== undefined) query = query.limit(options.maximum);
     return query;
 }
 
