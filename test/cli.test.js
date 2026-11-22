@@ -106,3 +106,11 @@ test('CLI の件数制限は並べ替え後に適用し0件も扱う', (t) => {
         assertSuccess(result, JSON.stringify(rows, null, 2) + '\n');
     }
 });
+
+test('CLI は課題文の使用例どおり集計済みの上位3件を表で出す', (t) => {
+    const csv = 'genre,minutes\nnews,3310\nanime,18000\ndrama,12004\nanime,230\nsports,1500\n';
+    const result = runWithCsv(t, csv, '--group-by', 'genre', '--sum', 'minutes',
+        '--sort', 'sum_minutes:desc', '--limit', '3');
+
+    assertSuccess(result, 'genre  sum_minutes\nanime        18230\ndrama        12004\nnews          3310\n');
+});
