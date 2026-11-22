@@ -122,6 +122,24 @@
         expectRows(doc, [['genre', 'sum_score'], ['anime', '40'], ['news', '4']]);
     });
 
+    await scenario('sort', async (doc, win) => {
+        await loadCsv(doc, win, 'genre,minutes\nanime,10\nnews,2\ndrama,5\n');
+        const table = doc.querySelector('#result');
+        let header = table.tHead.rows[0].cells[1];
+        header.click();
+        expectRows(doc, [['genre', 'minutes'], ['news', '2'], ['drama', '5'], ['anime', '10']]);
+        header = table.tHead.rows[0].cells[1];
+        expect(header.getAttribute('aria-sort') === 'ascending', '見出しに昇順が示される');
+        const clone = header.cloneNode(true);
+        header.replaceWith(clone);
+        clone.querySelector('button').click();
+        expectRows(doc, [['genre', 'minutes'], ['anime', '10'], ['drama', '5'], ['news', '2']]);
+        expect(table.tHead.rows[0].cells[1].getAttribute('aria-sort') === 'descending', '見出しに降順が示される');
+        table.tHead.rows[0].cells[0].querySelector('button').click();
+        expectRows(doc, [['genre', 'minutes'], ['anime', '10'], ['drama', '5'], ['news', '2']]);
+        expect(table.tHead.rows[0].cells[0].getAttribute('aria-sort') === 'ascending', '別の列は昇順から始める');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

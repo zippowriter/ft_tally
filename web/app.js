@@ -13,21 +13,39 @@ function setColumnOptions(select, header) {
     select.value = '';
 }
 
-function makeRow(values, tag) {
+function makeDataRow(values) {
     const row = document.createElement('tr');
     values.forEach((value) => {
-        const cell = document.createElement(tag);
-        if (tag === 'th') cell.scope = 'col';
+        const cell = document.createElement('td');
         cell.textContent = String(value ?? '');
         row.append(cell);
     });
     return row;
 }
 
-function renderTable(table, columns, rows) {
-    const body = rows.map((row) => makeRow(columns.map((column) => row[column]), 'td'));
-    table.tHead.replaceChildren(makeRow(columns, 'th'));
-    table.tBodies[0].replaceChildren(...body);
+function makeHeader(columns, sort) {
+    const row = document.createElement('tr');
+    columns.forEach((column) => {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        cell.dataset.column = column;
+        if (sort?.column === column) {
+            cell.setAttribute('aria-sort', sort.direction === 'asc' ? 'ascending' : 'descending');
+        }
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = column;
+        cell.append(button);
+        row.append(cell);
+    });
+    return row;
+}
+
+function renderTable(table, columns, rows, sort) {
+    const body = document.createDocumentFragment();
+    rows.forEach((row) => body.append(makeDataRow(columns.map((column) => row[column]))));
+    table.tHead.replaceChildren(makeHeader(columns, sort));
+    table.tBodies[0].replaceChildren(body);
     table.hidden = false;
 }
 
@@ -52,11 +70,14 @@ function buildResult(data, ui) {
     return { query: query.aggregate({ [alias]: [operation, column] }), columns, needsColumn };
 }
 
-function renderResult(ui, data) {
+function renderResult(ui, data, sort) {
     const { query, columns, needsColumn } = buildResult(data, ui);
-    const rows = query.run();
-    renderTable(ui.table, columns, rows);
+    const activeSort = columns.includes(sort?.column) ? sort : undefined;
+    const sorted = activeSort ? query.sortBy(activeSort.column, activeSort.direction) : query;
+    const rows = sorted.run();
+    renderTable(ui.table, columns, rows, activeSort);
     ui.status.textContent = needsColumn ? '集計列を選択してください' : `${rows.length} 行`;
+    return activeSort;
 }
 
 function getUi() {
@@ -74,6 +95,11 @@ function getUi() {
 function initialize() {
     const ui = getUi();
     let data;
+    let sort;
+
+    const redraw = () => {
+        if (data) sort = renderResult(ui, data, sort);
+    };
 
     ui.file.addEventListener('change', async () => {
         const file = ui.file.files[0];
@@ -82,11 +108,17 @@ function initialize() {
         data = { header, rows: inferTypes(rows) };
         setColumnOptions(ui.group, header);
         setColumnOptions(ui.aggregate, header);
-        renderResult(ui, data);
+        redraw();
         ui.conditions.disabled = false;
     });
-    ui.conditions.addEventListener('change', () => {
-        if (data) renderResult(ui, data);
+    ui.conditions.addEventListener('change', redraw);
+    ui.table.addEventListener('click', (event) => {
+        const header = event.target.closest('th[data-column]');
+        if (!header || !ui.table.tHead.contains(header)) return;
+        const column = header.dataset.column;
+        const direction = sort?.column === column && sort.direction === 'asc' ? 'desc' : 'asc';
+        sort = { column, direction };
+        redraw();
     });
     ui.file.disabled = false;
 }
