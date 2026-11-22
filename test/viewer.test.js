@@ -37,3 +37,4 @@ function browserTest(id, name) {
 
 browserTest('initial', 'ビューアはモジュールを読み込みファイル入力だけを有効にする');
 browserTest('columns', 'ビューアは CSV ヘッダーから両方の列選択肢を作る');
+browserTest('render', 'ビューアは型推論した CSV をヘッダーとデータ行に表示する');

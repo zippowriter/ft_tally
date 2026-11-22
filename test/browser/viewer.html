@@ -40,6 +40,18 @@
         await waitFor(() => !doc.querySelector('#conditions').disabled, 'CSV の読み込み後に条件が有効になる');
     }
 
+    function tableRows(doc) {
+        return Array.from(doc.querySelectorAll('#result tr'), (row) => {
+            return Array.from(row.cells, (cell) => cell.textContent);
+        });
+    }
+
+    function expectRows(doc, rows) {
+        const actual = tableRows(doc);
+        expect(JSON.stringify(actual) === JSON.stringify(rows),
+            `表の内容が期待値に一致する（実際: ${JSON.stringify(actual)}）`);
+    }
+
     async function scenario(id, check) {
         const frame = await openViewer();
         try {
@@ -67,6 +79,12 @@
             expect(labels.map((option) => option.textContent).join(',') === 'genre,minutes',
                 'ヘッダーの順序で両方の列を選べる');
         }
+    });
+
+    await scenario('render', async (doc, win) => {
+        await loadCsv(doc, win, 'genre,minutes,active\nanime,1e3,true\nnews,,false\n');
+        expect(!doc.querySelector('#result').hidden, '結果の表が表示される');
+        expectRows(doc, [['genre', 'minutes', 'active'], ['anime', '1000', 'true'], ['news', '', 'false']]);
     });
 
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
