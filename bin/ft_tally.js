@@ -24,6 +24,7 @@ function formatTable(columns, rows) {
 
 function parseWhere(text) {
     const separator = text.indexOf('=');
+    if (separator < 1) throw new Error('--where は col=value の形式で指定してください');
     return [text.slice(0, separator), inferValue(text.slice(separator + 1))];
 }
 

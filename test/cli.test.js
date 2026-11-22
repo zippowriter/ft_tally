@@ -163,3 +163,10 @@ test('CLI は未対応の出力形式を拒否する', (t) => {
 
     assertFailure(result, /--format.*csv/);
 });
+
+test('CLI は列名と等号が揃っていない絞り込み条件を拒否する', (t) => {
+    for (const condition of ['genre', '=anime']) {
+        const result = runWithCsv(t, 'genre\nanime\n', '--where', condition);
+        assertFailure(result, /--where.*col=value/);
+    }
+});
