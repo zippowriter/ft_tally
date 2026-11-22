@@ -21,3 +21,7 @@ test('inferValue は空文字列を欠損値に変換する', () => {
 test('inferValue は空白だけの文字列を欠損値に変換する', () => {
     assert.equal(inferValue(' \t\n'), null);
 });
+
+test('inferValue は NaN と Infinity を文字列のまま返す', () => {
+    assert.deepEqual(['NaN', 'Infinity'].map(inferValue), ['NaN', 'Infinity']);
+});
