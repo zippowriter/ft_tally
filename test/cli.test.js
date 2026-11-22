@@ -126,3 +126,10 @@ test('CLI は課題文の使用例どおり集計済みの上位3件を表で出
 test('CLI はファイル引数がないと使い方を標準エラー出力に出す', () => {
     assertFailure(runCli(), /使い方.*<file\.csv>/);
 });
+
+test('CLI は存在しないファイルを標準エラー出力と終了コード1で伝える', (t) => {
+    const directory = mkdtempSync(join(tmpdir(), 'ft-tally-'));
+    t.after(() => rmdirSync(directory));
+
+    assertFailure(runCli(join(directory, 'missing.csv')), /ENOENT.*missing\.csv/);
+});
