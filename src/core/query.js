@@ -1,3 +1,5 @@
+import { isNumericColumn } from './types.js';
+
 function sum(values) {
     return values.reduce((total, value) => total + value, 0);
 }
@@ -18,7 +20,19 @@ function summarize(rows, aggregates) {
     ]));
 }
 
+function validateNumericColumns(rows, aggregates) {
+    const columns = Object.values(aggregates)
+        .filter(([operation]) => operation !== 'count')
+        .map(([, column]) => column);
+    Array.from(new Set(columns)).forEach((column) => {
+        if (!isNumericColumn(rows.map((row) => row[column]))) {
+            throw new Error(`数値列ではありません: ${column}`);
+        }
+    });
+}
+
 function runQuery(rows, { predicates, groupColumn, aggregates }) {
+    if (aggregates !== undefined) validateNumericColumns(rows, aggregates);
     const filtered = rows.filter((row) => predicates.every((predicate) => predicate(row)));
     if (groupColumn === undefined) return filtered;
 

@@ -85,3 +85,16 @@ test('max は欠損値を除いた最大値を返す', () => {
 
     assert.deepEqual(result, [{ genre: 'anime', high: -2 }]);
 });
+
+test('数値集計は絞り込み前に列全体を調べて列名付きのエラーを返す', () => {
+    const rows = [
+        { genre: 'anime', minutes: 4 },
+        { genre: 'news', minutes: '不明' },
+        { genre: 'drama', minutes: null },
+    ];
+
+    for (const operation of ['sum', 'avg', 'min', 'max']) {
+        const query = createQuery(rows).where((row) => row.genre === 'anime').groupBy('genre');
+        assert.throws(() => query.aggregate({ value: [operation, 'minutes'] }).run(), /minutes/);
+    }
+});
