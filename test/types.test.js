@@ -13,3 +13,7 @@ test('inferValue は負の小数を数値に変換する', () => {
 test('inferValue は指数表記を数値に変換する', () => {
     assert.equal(inferValue('1e3'), 1000);
 });
+
+test('inferValue は空文字列を欠損値に変換する', () => {
+    assert.equal(inferValue(''), null);
+});
