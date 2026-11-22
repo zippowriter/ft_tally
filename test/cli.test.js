@@ -45,3 +45,11 @@ test('CLI は型推論済みの行を整形済み JSON で出す', (t) => {
         { minutes: -2.5, active: false, note: '保留' },
     ], null, 2) + '\n');
 });
+
+test('CLI の複数の絞り込み条件は型推論した値を比較する', (t) => {
+    const csv = 'device,active,minutes\ntv,true,1000\ntv,false,1000\npc,true,1000\ntv,true,5\n';
+    const result = runWithCsv(t, csv,
+        '--where', 'device=tv', '--where', 'active=true', '--where', 'minutes=1e3', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([{ device: 'tv', active: true, minutes: 1000 }], null, 2) + '\n');
+});
