@@ -47,3 +47,4 @@ browserTest('query-error', 'ビューアは数値集計のエラーを表示し�
 browserTest('header-only', 'ビューアはヘッダーだけの CSV でも列を表示する');
 browserTest('replace', 'ビューアは別の CSV を選ぶと前の条件と並び順をリセットする');
 browserTest('read-error', 'ビューアは読込失敗を表示して次のファイルで復旧する');
+browserTest('race', 'ビューアは先に選んだファイルの読込結果が遅れても最後の結果を保つ');

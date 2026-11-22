@@ -218,6 +218,27 @@
         expect(errors.length === 0, '未捕捉の例外がない');
     });
 
+    await scenario('race', async (doc, win) => {
+        const original = win.File.prototype.text;
+        const errors = captureErrors(win);
+        for (const failing of [false, true]) {
+            let finish;
+            const slow = new Promise((resolve, reject) => {
+                finish = failing ? () => reject(new Error('古い読み込みエラー')) : () => resolve('old\n1\n');
+            });
+            win.File.prototype.text = function () {
+                return this.name === 'slow.csv' ? slow : original.call(this);
+            };
+            setFile(doc, win, new win.File([], 'slow.csv'));
+            await loadCsv(doc, win, 'latest\n2\n');
+            finish();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            expectRows(doc, [['latest'], ['2']]);
+            expect(visibleError(doc) === '', '古い読み込みのエラーは表示しない');
+        }
+        expect(errors.length === 0, '古い読み込みでも未捕捉の例外がない');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

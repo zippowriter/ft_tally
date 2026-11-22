@@ -118,18 +118,23 @@ function resetFileUi(ui, file) {
 }
 
 function bindFileInput(ui, onData) {
+    let latestRead = 0;
     ui.file.addEventListener('change', async () => {
+        const read = ++latestRead;
         const file = ui.file.files[0];
         onData(undefined);
         resetFileUi(ui, file);
         if (!file) return;
         try {
-            const { header, rows } = parseCsv(await file.text());
+            const text = await file.text();
+            if (read !== latestRead) return;
+            const { header, rows } = parseCsv(text);
             setColumnOptions(ui.group, header);
             setColumnOptions(ui.aggregate, header);
             ui.conditions.disabled = false;
             onData({ header, rows: inferTypes(rows) });
         } catch (error) {
+            if (read !== latestRead) return;
             ui.conditions.disabled = true;
             showError(ui, error);
         }
