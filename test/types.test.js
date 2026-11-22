@@ -67,3 +67,7 @@ test('isNumericColumn は欠損値を除外して数値列を判定する', () =
 test('isNumericColumn は文字列が混在する列を数値列と判定しない', () => {
     assert.equal(isNumericColumn([1, '2', null]), false);
 });
+
+test('isNumericColumn は真偽値が混在する列を数値列と判定しない', () => {
+    assert.equal(isNumericColumn([1, false, null]), false);
+});
