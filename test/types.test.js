@@ -37,3 +37,7 @@ test('inferValue は数値で始まる文字列全体を保持する', () => {
 test('inferValue は true と false を真偽値に変換する', () => {
     assert.deepEqual(['true', 'false'].map(inferValue), [true, false]);
 });
+
+test('inferValue は通常の文字列の前後の空白を保持する', () => {
+    assert.equal(inferValue('  Tokyo  '), '  Tokyo  ');
+});
