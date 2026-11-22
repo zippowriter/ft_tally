@@ -155,3 +155,13 @@ test('groupBy 単独では型の違いと欠損値を保ちキーを初出順に
     assert.deepEqual(grouped.run(), [{ key: 7 }, { key: null }, { key: '7' }]);
     assert.deepEqual(base.run(), rows);
 });
+
+test('グループ指定なしの aggregate は全行の集計を1行で返す', () => {
+    const rows = [{ minutes: 5 }, { minutes: null }, { minutes: 7 }];
+    const base = createQuery(rows);
+    const summary = base.aggregate({ n: ['count'], total: ['sum', 'minutes'] });
+
+    assert.notEqual(summary, base);
+    assert.deepEqual(summary.run(), [{ n: 3, total: 12 }]);
+    assert.deepEqual(base.run(), rows);
+});

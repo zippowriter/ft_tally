@@ -34,7 +34,9 @@ function validateNumericColumns(rows, aggregates) {
 function selectRows(rows, { predicates, groupColumn, aggregates }) {
     if (aggregates !== undefined) validateNumericColumns(rows, aggregates);
     const filtered = rows.filter((row) => predicates.every((predicate) => predicate(row)));
-    if (groupColumn === undefined) return filtered;
+    if (groupColumn === undefined) {
+        return aggregates === undefined ? filtered : [summarize(filtered, aggregates)];
+    }
 
     const groups = Map.groupBy(filtered, (row) => row[groupColumn]);
     return Array.from(groups, ([key, members]) => ({
