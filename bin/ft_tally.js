@@ -103,12 +103,25 @@ function outputColumns(header, { group, aggregates }) {
     return aggregates.size === 0 ? header : Array.from(aggregates.keys());
 }
 
+function assertColumn(columns, column) {
+    if (!columns.includes(column)) throw new Error(`未知の列: ${column}`);
+}
+
+function validateInputColumns(header, { filters, group, aggregates }) {
+    filters.forEach(([column]) => assertColumn(header, column));
+    if (group !== undefined) assertColumn(header, group);
+    for (const [operation, column] of aggregates.values()) {
+        if (operation !== 'count') assertColumn(header, column);
+    }
+}
+
 function main([file, ...args]) {
     if (file === undefined || file.startsWith('--')) {
         throw new Error('使い方: ft_tally <file.csv> [オプション]');
     }
     const options = parseOptions(args);
     const { header, rows } = parseCsv(readFileSync(file, 'utf8'));
+    validateInputColumns(header, options);
     const result = buildQuery(inferTypes(rows), options).run();
     const output = options.format === 'json'
         ? JSON.stringify(result, null, 2)

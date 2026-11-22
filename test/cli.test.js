@@ -184,3 +184,17 @@ test('CLI は安全な非負の十進整数でない件数を拒否する', (t) 
         assertFailure(result, /--limit.*整数/);
     }
 });
+
+test('CLI はデータ行がなくても未知の入力列を拒否する', (t) => {
+    for (const options of [
+        ['--where', 'unknown=tv'],
+        ['--group-by', 'unknown'],
+        ['--sum', 'unknown'],
+        ['--avg', 'unknown'],
+        ['--min', 'unknown'],
+        ['--max', 'unknown'],
+    ]) {
+        const result = runWithCsv(t, 'genre,minutes\n', ...options);
+        assertFailure(result, /未知の列: unknown/);
+    }
+});
