@@ -32,9 +32,14 @@ function parseSort(text) {
     return [text.slice(0, separator), text.slice(separator + 1)];
 }
 
+function parseFormat(value) {
+    if (value !== 'table' && value !== 'json') throw new Error(`不正な --format: ${value}`);
+    return value;
+}
+
 function valueOptions(options) {
     const handlers = new Map([
-        ['--format', (value) => { options.format = value; }],
+        ['--format', (value) => { options.format = parseFormat(value); }],
         ['--where', (value) => { options.filters.push(parseWhere(value)); }],
         ['--group-by', (value) => { options.group = value; }],
         ['--sort', (value) => { options.sort = parseSort(value); }],

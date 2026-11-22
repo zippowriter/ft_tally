@@ -157,3 +157,9 @@ test('CLI は値を必要とするオプションの値がなければ拒否す�
         }
     }
 });
+
+test('CLI は未対応の出力形式を拒否する', (t) => {
+    const result = runWithCsv(t, 'genre\nanime\n', '--format', 'csv');
+
+    assertFailure(result, /--format.*csv/);
+});
