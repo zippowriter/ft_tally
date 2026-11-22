@@ -190,6 +190,19 @@
         expectRows(doc, [['genre', 'minutes']]);
     });
 
+    await scenario('replace', async (doc, win) => {
+        await loadCsv(doc, win, 'genre,minutes\nanime,2\nnews,3\n');
+        select(doc, win, '#group-column', '0');
+        select(doc, win, '#operation', 'count');
+        doc.querySelector('#result th').click();
+
+        await loadCsv(doc, win, 'genre,score\nnews,20\nanime,10\n');
+        expectRows(doc, [['genre', 'score'], ['news', '20'], ['anime', '10']]);
+        expect(doc.querySelector('#operation').value === '', '集計方法が既定に戻る');
+        expect(!doc.querySelector('#result [aria-sort]'), '前の列の並び順を引き継がない');
+        expect(doc.querySelector('#aggregate-column').options[2].textContent === 'score', '列が更新される');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

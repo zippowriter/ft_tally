@@ -105,11 +105,24 @@ function clearError(ui) {
     ui.error.hidden = true;
 }
 
+function resetFileUi(ui, file) {
+    clearError(ui);
+    ui.conditions.disabled = true;
+    ui.operation.value = '';
+    setColumnOptions(ui.group, []);
+    setColumnOptions(ui.aggregate, []);
+    ui.table.tHead.replaceChildren();
+    ui.table.tBodies[0].replaceChildren();
+    ui.table.hidden = true;
+    ui.status.textContent = file ? '読み込み中…' : '';
+}
+
 function bindFileInput(ui, onData) {
     ui.file.addEventListener('change', async () => {
         const file = ui.file.files[0];
+        onData(undefined);
+        resetFileUi(ui, file);
         if (!file) return;
-        clearError(ui);
         try {
             const { header, rows } = parseCsv(await file.text());
             setColumnOptions(ui.group, header);
@@ -141,6 +154,7 @@ function initialize() {
 
     bindFileInput(ui, (nextData) => {
         data = nextData;
+        sort = undefined;
         redraw();
     });
     ui.conditions.addEventListener('change', redraw);
