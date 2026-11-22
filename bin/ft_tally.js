@@ -104,20 +104,26 @@ function resolveAggregateAliases(group, aggregates) {
 function parseOptions(args) {
     const options = { format: 'table', filters: [], aggregates: new Map() };
     const handlers = valueOptions(options);
+    const singleUse = new Set(['--format', '--group-by', '--sort', '--limit', '--count']);
+    const used = new Set();
     for (let index = 0; index < args.length; index += 1) {
         const flag = args[index];
+        if (singleUse.has(flag)) {
+            if (used.has(flag)) throw new Error(`${flag}: このオプションは1回だけ指定できます`);
+            used.add(flag);
+        }
         if (flag === '--count') {
             options.aggregates.set('count', ['count']);
-        } else {
-            const handler = handlers.get(flag);
-            if (handler === undefined) throw new Error(`不正なオプション: ${flag}`);
-            const value = args[index + 1];
-            if (value === undefined || value.startsWith('--')) {
-                throw new Error(`${flag} には値が必要です`);
-            }
-            handler(value);
-            index += 1;
+            continue;
         }
+        const handler = handlers.get(flag);
+        if (handler === undefined) throw new Error(`不正なオプション: ${flag}`);
+        const value = args[index + 1];
+        if (value === undefined || value.startsWith('--')) {
+            throw new Error(`${flag} には値が必要です`);
+        }
+        handler(value);
+        index += 1;
     }
     options.aggregates = resolveAggregateAliases(options.group, options.aggregates);
     return options;

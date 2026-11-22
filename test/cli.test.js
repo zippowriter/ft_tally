@@ -251,3 +251,17 @@ test('CLI は集計名とグループ列が重なる場合も両方の値を保�
         { sum_minutes: 'news', sum_minutes_3: 1, sum_minutes_2: 3 },
     ], null, 2) + '\n');
 });
+
+test('CLI は単一指定のオプションを繰り返すと拒否する', (t) => {
+    const csv = 'genre,minutes\nanime,5\n';
+    for (const [flag, ...values] of [
+        ['--group-by', 'unknown', 'genre'],
+        ['--sort', 'unknown:asc', 'genre:asc'],
+        ['--limit', '1', '2'],
+        ['--format', 'json', 'table'],
+        ['--count'],
+    ]) {
+        const repeated = values.length === 0 ? [flag, flag] : [flag, values[0], flag, values[1]];
+        assertFailure(runWithCsv(t, csv, ...repeated), /オプションは1回だけ/);
+    }
+});
