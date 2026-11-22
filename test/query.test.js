@@ -111,3 +111,14 @@ test('sortBy は数値を昇順と降順で並べ替え入力と親クエリを�
     assert.deepEqual(descending.run(), [rows[0], rows[2], rows[1]]);
     assert.deepEqual(base.run(), [{ score: 10 }, { score: -3 }, { score: 2 }]);
 });
+
+test('limit は先頭から指定件数を返し0件や過大な指定も扱う', () => {
+    const rows = [{ score: 1 }, { score: 2 }, { score: 3 }];
+    const base = createQuery(rows);
+
+    assert.notEqual(base.limit(2), base);
+    assert.deepEqual(base.limit(2).run(), rows.slice(0, 2));
+    assert.deepEqual(base.limit(0).run(), []);
+    assert.deepEqual(base.limit(10).run(), rows);
+    assert.deepEqual(base.run(), rows);
+});

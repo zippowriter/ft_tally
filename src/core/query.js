@@ -43,17 +43,19 @@ function selectRows(rows, { predicates, groupColumn, aggregates }) {
     }));
 }
 
-function runQuery(rows, options) {
-    const selected = selectRows(rows, options);
-    if (options.sort === undefined) return selected;
-
-    const [column, direction] = options.sort;
+function sortRows(rows, [column, direction]) {
     const sign = direction === 'desc' ? -1 : 1;
-    return selected.toSorted((left, right) => {
+    return rows.toSorted((left, right) => {
         if (left[column] < right[column]) return -sign;
         if (left[column] > right[column]) return sign;
         return 0;
     });
+}
+
+function runQuery(rows, options) {
+    const selected = selectRows(rows, options);
+    const sorted = options.sort === undefined ? selected : sortRows(selected, options.sort);
+    return options.maximum === undefined ? sorted : sorted.slice(0, options.maximum);
 }
 
 function buildQuery(rows, options) {
@@ -65,6 +67,7 @@ function buildQuery(rows, options) {
         groupBy: (groupColumn) => buildQuery(rows, { ...options, groupColumn }),
         aggregate: (aggregates) => buildQuery(rows, { ...options, aggregates }),
         sortBy: (column, direction) => buildQuery(rows, { ...options, sort: [column, direction] }),
+        limit: (maximum) => buildQuery(rows, { ...options, maximum }),
         run: () => runQuery(rows, options),
     };
 }
