@@ -39,7 +39,7 @@ function selectRows(rows, { predicates, groupColumn, aggregates }) {
     const groups = Map.groupBy(filtered, (row) => row[groupColumn]);
     return Array.from(groups, ([key, members]) => ({
         [groupColumn]: key,
-        ...summarize(members, aggregates),
+        ...summarize(members, aggregates ?? {}),
     }));
 }
 

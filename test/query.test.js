@@ -145,3 +145,13 @@ test('CSV の型推論から絞り込みとグループ集計と上位抽出ま�
 
     assert.deepEqual(result, [{ genre: 'anime', total: 12, n: 2 }]);
 });
+
+test('groupBy 単独では型の違いと欠損値を保ちキーを初出順に返す', () => {
+    const rows = [{ key: 7 }, { key: null }, { key: '7' }, { key: 7 }, { key: null }];
+    const base = createQuery(rows);
+    const grouped = base.groupBy('key');
+
+    assert.notEqual(grouped, base);
+    assert.deepEqual(grouped.run(), [{ key: 7 }, { key: null }, { key: '7' }]);
+    assert.deepEqual(base.run(), rows);
+});
