@@ -83,3 +83,10 @@ test('CLI の --min は欠損値を除いた最小値を返す', (t) => {
 
     assertSuccess(result, JSON.stringify([{ min_minutes: 2 }], null, 2) + '\n');
 });
+
+test('CLI の --max は欠損値を除いた最大値を返す', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime,8\nnews,\nanime,2\n',
+        '--max', 'minutes', '--format', 'json');
+
+    assertSuccess(result, JSON.stringify([{ max_minutes: 8 }], null, 2) + '\n');
+});

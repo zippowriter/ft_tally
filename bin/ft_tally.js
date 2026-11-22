@@ -34,7 +34,8 @@ function readOption(options, flag, value) {
         case '--group-by': options.group = value; break;
         case '--sum':
         case '--avg':
-        case '--min': {
+        case '--min':
+        case '--max': {
             const operation = flag.slice(2);
             options.aggregates.set(`${operation}_${value}`, [operation, value]);
             break;
