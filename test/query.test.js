@@ -98,3 +98,16 @@ test('数値集計は絞り込み前に列全体を調べて列名付きのエ�
         assert.throws(() => query.aggregate({ value: [operation, 'minutes'] }).run(), /minutes/);
     }
 });
+
+test('sortBy は数値を昇順と降順で並べ替え入力と親クエリを保つ', () => {
+    const rows = Object.freeze([{ score: 10 }, { score: -3 }, { score: 2 }]);
+    const base = createQuery(rows);
+    const ascending = base.sortBy('score', 'asc');
+    const descending = base.sortBy('score', 'desc');
+
+    assert.notEqual(ascending, base);
+    assert.notEqual(descending, base);
+    assert.deepEqual(ascending.run(), [rows[1], rows[2], rows[0]]);
+    assert.deepEqual(descending.run(), [rows[0], rows[2], rows[1]]);
+    assert.deepEqual(base.run(), [{ score: 10 }, { score: -3 }, { score: 2 }]);
+});

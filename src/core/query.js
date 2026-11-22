@@ -31,7 +31,7 @@ function validateNumericColumns(rows, aggregates) {
     });
 }
 
-function runQuery(rows, { predicates, groupColumn, aggregates }) {
+function selectRows(rows, { predicates, groupColumn, aggregates }) {
     if (aggregates !== undefined) validateNumericColumns(rows, aggregates);
     const filtered = rows.filter((row) => predicates.every((predicate) => predicate(row)));
     if (groupColumn === undefined) return filtered;
@@ -43,6 +43,19 @@ function runQuery(rows, { predicates, groupColumn, aggregates }) {
     }));
 }
 
+function runQuery(rows, options) {
+    const selected = selectRows(rows, options);
+    if (options.sort === undefined) return selected;
+
+    const [column, direction] = options.sort;
+    const sign = direction === 'desc' ? -1 : 1;
+    return selected.toSorted((left, right) => {
+        if (left[column] < right[column]) return -sign;
+        if (left[column] > right[column]) return sign;
+        return 0;
+    });
+}
+
 function buildQuery(rows, options) {
     return {
         where: (predicate) => buildQuery(rows, {
@@ -51,6 +64,7 @@ function buildQuery(rows, options) {
         }),
         groupBy: (groupColumn) => buildQuery(rows, { ...options, groupColumn }),
         aggregate: (aggregates) => buildQuery(rows, { ...options, aggregates }),
+        sortBy: (column, direction) => buildQuery(rows, { ...options, sort: [column, direction] }),
         run: () => runQuery(rows, options),
     };
 }
