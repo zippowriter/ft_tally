@@ -59,3 +59,7 @@ test('inferTypes は CSV の行順と列名を保ち各セルを変換する', (
 test('isNumericColumn は数値だけの列を数値列と判定する', () => {
     assert.equal(isNumericColumn([0, -3.5, 7]), true);
 });
+
+test('isNumericColumn は欠損値を除外して数値列を判定する', () => {
+    assert.equal(isNumericColumn([null, 7, null, -3.5]), true);
+});

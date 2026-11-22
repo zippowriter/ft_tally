@@ -17,5 +17,5 @@ export function inferTypes(rows) {
 }
 
 export function isNumericColumn(values) {
-    return values.every(Number.isFinite);
+    return values.every((value) => value === null || Number.isFinite(value));
 }
