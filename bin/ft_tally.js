@@ -32,33 +32,37 @@ function parseSort(text) {
     return [text.slice(0, separator), text.slice(separator + 1)];
 }
 
-function readOption(options, flag, value) {
-    switch (flag) {
-        case '--format': options.format = value; break;
-        case '--where': options.filters.push(parseWhere(value)); break;
-        case '--group-by': options.group = value; break;
-        case '--sort': options.sort = parseSort(value); break;
-        case '--limit': options.maximum = Number(value); break;
-        case '--sum':
-        case '--avg':
-        case '--min':
-        case '--max': {
-            const operation = flag.slice(2);
-            options.aggregates.set(`${operation}_${value}`, [operation, value]);
-            break;
-        }
-        default: throw new Error(`不正なオプション: ${flag}`);
+function valueOptions(options) {
+    const handlers = new Map([
+        ['--format', (value) => { options.format = value; }],
+        ['--where', (value) => { options.filters.push(parseWhere(value)); }],
+        ['--group-by', (value) => { options.group = value; }],
+        ['--sort', (value) => { options.sort = parseSort(value); }],
+        ['--limit', (value) => { options.maximum = Number(value); }],
+    ]);
+    for (const operation of ['sum', 'avg', 'min', 'max']) {
+        handlers.set(`--${operation}`, (column) => {
+            options.aggregates.set(`${operation}_${column}`, [operation, column]);
+        });
     }
+    return handlers;
 }
 
 function parseOptions(args) {
     const options = { format: 'table', filters: [], aggregates: new Map() };
+    const handlers = valueOptions(options);
     for (let index = 0; index < args.length; index += 1) {
         const flag = args[index];
         if (flag === '--count') {
             options.aggregates.set('count', ['count']);
         } else {
-            readOption(options, flag, args[index + 1]);
+            const handler = handlers.get(flag);
+            if (handler === undefined) throw new Error(`不正なオプション: ${flag}`);
+            const value = args[index + 1];
+            if (value === undefined || value.startsWith('--')) {
+                throw new Error(`${flag} には値が必要です`);
+            }
+            handler(value);
             index += 1;
         }
     }

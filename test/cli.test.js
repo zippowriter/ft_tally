@@ -147,3 +147,13 @@ test('CLI は未知のオプションと余分な位置引数を拒否する', (
         assert.ok(result.stderr.includes(argument));
     }
 });
+
+test('CLI は値を必要とするオプションの値がなければ拒否する', (t) => {
+    for (const flag of ['--format', '--where', '--group-by', '--sum', '--avg', '--min', '--max', '--sort', '--limit']) {
+        for (const rest of [[], ['--count']]) {
+            const result = runWithCsv(t, 'genre\nanime\n', flag, ...rest);
+            assertFailure(result, /値が必要/);
+            assert.ok(result.stderr.includes(flag));
+        }
+    }
+});
