@@ -198,3 +198,11 @@ test('CLI はデータ行がなくても未知の入力列を拒否する', (t) 
         assertFailure(result, /未知の列: unknown/);
     }
 });
+
+test('CLI は結果が0行でも結果の列にない並べ替え指定を拒否する', (t) => {
+    const csv = 'genre,minutes\nanime,5\n';
+    const result = runWithCsv(t, csv, '--where', 'genre=news', '--group-by', 'genre',
+        '--sum', 'minutes', '--sort', 'minutes:desc');
+
+    assertFailure(result, /未知の列: minutes/);
+});

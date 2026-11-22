@@ -122,10 +122,12 @@ function main([file, ...args]) {
     const options = parseOptions(args);
     const { header, rows } = parseCsv(readFileSync(file, 'utf8'));
     validateInputColumns(header, options);
+    const columns = outputColumns(header, options);
+    if (options.sort !== undefined) assertColumn(columns, options.sort[0]);
     const result = buildQuery(inferTypes(rows), options).run();
     const output = options.format === 'json'
         ? JSON.stringify(result, null, 2)
-        : formatTable(outputColumns(header, options), result);
+        : formatTable(columns, result);
     process.stdout.write(`${output}\n`);
 }
 
