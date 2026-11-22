@@ -183,6 +183,13 @@
         expect(errors.length === 0, '未捕捉の例外がない');
     });
 
+    await scenario('header-only', async (doc, win) => {
+        await loadCsv(doc, win, 'genre,minutes\n');
+        expect(!doc.querySelector('#result').hidden, '空の表も表示される');
+        expect(doc.querySelector('#aggregate-column').options.length === 3, '集計列を選択できる');
+        expectRows(doc, [['genre', 'minutes']]);
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>
