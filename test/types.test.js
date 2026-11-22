@@ -33,3 +33,7 @@ test('inferValue は十六進表記を文字列のまま返す', () => {
 test('inferValue は数値で始まる文字列全体を保持する', () => {
     assert.equal(inferValue('12abc'), '12abc');
 });
+
+test('inferValue は true と false を真偽値に変換する', () => {
+    assert.deepEqual(['true', 'false'].map(inferValue), [true, false]);
+});

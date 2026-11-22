@@ -1,6 +1,7 @@
 export function inferValue(text) {
     if (typeof text !== 'string') return text;
     if (text.trim() === '') return null;
+    if (text === 'true' || text === 'false') return text === 'true';
 
     const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
     if (decimal.test(text)) {
