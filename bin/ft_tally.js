@@ -27,11 +27,17 @@ function parseWhere(text) {
     return [text.slice(0, separator), inferValue(text.slice(separator + 1))];
 }
 
+function parseSort(text) {
+    const separator = text.lastIndexOf(':');
+    return [text.slice(0, separator), text.slice(separator + 1)];
+}
+
 function readOption(options, flag, value) {
     switch (flag) {
         case '--format': options.format = value; break;
         case '--where': options.filters.push(parseWhere(value)); break;
         case '--group-by': options.group = value; break;
+        case '--sort': options.sort = parseSort(value); break;
         case '--sum':
         case '--avg':
         case '--min':
@@ -64,6 +70,7 @@ function buildQuery(rows, options) {
     }, createQuery(rows));
     if (options.group !== undefined) query = query.groupBy(options.group);
     if (options.aggregates.size > 0) query = query.aggregate(Object.fromEntries(options.aggregates));
+    if (options.sort !== undefined) query = query.sortBy(...options.sort);
     return query;
 }
 

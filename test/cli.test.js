@@ -90,3 +90,11 @@ test('CLI の --max は欠損値を除いた最大値を返す', (t) => {
 
     assertSuccess(result, JSON.stringify([{ max_minutes: 8 }], null, 2) + '\n');
 });
+
+test('CLI の並べ替えは入力列の数値を昇順と降順に並べる', (t) => {
+    const csv = 'minutes\n10\n-3\n2\n';
+    for (const [direction, values] of [['asc', [-3, 2, 10]], ['desc', [10, 2, -3]]]) {
+        const result = runWithCsv(t, csv, '--sort', `minutes:${direction}`, '--format', 'json');
+        assertSuccess(result, JSON.stringify(values.map((minutes) => ({ minutes })), null, 2) + '\n');
+    }
+});
