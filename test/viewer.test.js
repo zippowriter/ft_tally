@@ -43,3 +43,4 @@ browserTest('aggregates', 'ビューアは選んだ集計列と5種類の集計�
 browserTest('sort', 'ビューアは再描画した見出しでも表のイベント委譲で昇順と降順を切り替える');
 browserTest('text', 'ビューアは HTML に見えるヘッダーとセルを文字として表示する');
 browserTest('parse-error', 'ビューアは不正な CSV の行番号を表示して未捕捉例外を出さない');
+browserTest('query-error', 'ビューアは数値集計のエラーを表示し条件を直すと復旧する');

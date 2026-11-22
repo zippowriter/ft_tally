@@ -130,7 +130,13 @@ function initialize() {
     let sort;
 
     const redraw = () => {
-        if (data) sort = renderResult(ui, data, sort);
+        if (!data) return;
+        clearError(ui);
+        try {
+            sort = renderResult(ui, data, sort);
+        } catch (error) {
+            showError(ui, error);
+        }
     };
 
     bindFileInput(ui, (nextData) => {

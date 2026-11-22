@@ -169,6 +169,20 @@
         expect(doc.querySelector('#result').hidden, '不正なデータの表は表示しない');
     });
 
+    await scenario('query-error', async (doc, win) => {
+        const errors = captureErrors(win);
+        await loadCsv(doc, win, 'genre,minutes\nanime,5\nnews,3\n');
+        select(doc, win, '#aggregate-column', '0');
+        select(doc, win, '#operation', 'sum');
+        expect(/数値列.*genre/.test(visibleError(doc)), '数値でない列の名前を表示する');
+        expect(doc.querySelector('#result').hidden, 'エラー時の表を隠す');
+        select(doc, win, '#aggregate-column', '1');
+        expect(visibleError(doc) === '', '条件の修正でエラーが消える');
+        expect(!doc.querySelector('#result').hidden, '条件の修正で表が再表示される');
+        expectRows(doc, [['sum_minutes'], ['8']]);
+        expect(errors.length === 0, '未捕捉の例外がない');
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>
