@@ -17,3 +17,7 @@ test('inferValue は指数表記を数値に変換する', () => {
 test('inferValue は空文字列を欠損値に変換する', () => {
     assert.equal(inferValue(''), null);
 });
+
+test('inferValue は空白だけの文字列を欠損値に変換する', () => {
+    assert.equal(inferValue(' \t\n'), null);
+});

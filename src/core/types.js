@@ -1,8 +1,9 @@
 export function inferValue(text) {
-    if (text === '') return null;
+    if (typeof text !== 'string') return text;
+    if (text.trim() === '') return null;
 
     const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
-    if (typeof text === 'string' && decimal.test(text)) {
+    if (decimal.test(text)) {
         return Number(text);
     }
     return text;
