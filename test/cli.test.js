@@ -233,3 +233,10 @@ test('CLI の表では0件の場合もヘッダーを表示する', (t) => {
         assertSuccess(result, want);
     }
 });
+
+test('CLI の表は全角文字の列幅を揃え制御文字を1行に収める', (t) => {
+    const csv = '地域,値\n京,A\n大阪,"B\nC\tD"\ne\u0301,E\n';
+    const result = runWithCsv(t, csv);
+
+    assertSuccess(result, '地域  値\n京    A\n大阪  B\\nC\\tD\ne\u0301     E\n');
+});
