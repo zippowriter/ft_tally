@@ -206,3 +206,10 @@ test('CLI は結果が0行でも結果の列にない並べ替え指定を拒否
 
     assertFailure(result, /未知の列: minutes/);
 });
+
+test('CLI は数値列でない列の集計エラーに列名を含める', (t) => {
+    const result = runWithCsv(t, 'genre,minutes\nanime,5\nnews,不明\n',
+        '--where', 'genre=anime', '--sum', 'minutes');
+
+    assertFailure(result, /数値列.*minutes/);
+});
