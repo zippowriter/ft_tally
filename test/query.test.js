@@ -41,3 +41,14 @@ test('groupBy と aggregate はグループごとの件数を返す', () => {
 
     assert.deepEqual(result, [{ genre: 'anime', n: 2 }, { genre: 'news', n: 1 }]);
 });
+
+test('sum は欠損値を除いた数値を合計する', () => {
+    const rows = [
+        { genre: 'anime', minutes: 7 },
+        { genre: 'anime', minutes: null },
+        { genre: 'anime', minutes: -2.5 },
+    ];
+    const result = createQuery(rows).groupBy('genre').aggregate({ total: ['sum', 'minutes'] }).run();
+
+    assert.deepEqual(result, [{ genre: 'anime', total: 4.5 }]);
+});

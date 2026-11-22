@@ -1,5 +1,17 @@
+function sum(values) {
+    return values.reduce((total, value) => total + value, 0);
+}
+
+function calculate(rows, operation, column) {
+    if (operation === 'count') return rows.length;
+    const values = rows.map((row) => row[column]).filter((value) => value !== null);
+    return sum(values);
+}
+
 function summarize(rows, aggregates) {
-    return Object.fromEntries(Object.keys(aggregates).map((alias) => [alias, rows.length]));
+    return Object.fromEntries(Object.entries(aggregates).map(([alias, [operation, column]]) => [
+        alias, calculate(rows, operation, column),
+    ]));
 }
 
 function runQuery(rows, { predicates, groupColumn, aggregates }) {
