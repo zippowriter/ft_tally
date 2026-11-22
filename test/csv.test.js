@@ -79,3 +79,9 @@ test('parseCsv はファイル末尾の改行で余分なレコードを作ら�
         rows: [{ id: '001', note: 'hello' }],
     });
 });
+
+test('parseCsv は閉じていない引用符のエラーにレコードの開始行を含める', () => {
+    const text = 'id,note\r\n001,ok\r\n002,"first line\r\nsecond line';
+
+    assert.throws(() => parseCsv(text), /\bline 3\b/);
+});
