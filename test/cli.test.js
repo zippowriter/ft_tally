@@ -213,3 +213,14 @@ test('CLI は数値列でない列の集計エラーに列名を含める', (t) 
 
     assertFailure(result, /数値列.*minutes/);
 });
+
+test('CLI の絞り込みでは空の値と等号を含む値を指定できる', (t) => {
+    const csv = 'note,minutes\n,1\na=b=c,2\na,3\n';
+    for (const [condition, row] of [
+        ['note=', { note: null, minutes: 1 }],
+        ['note=a=b=c', { note: 'a=b=c', minutes: 2 }],
+    ]) {
+        const result = runWithCsv(t, csv, '--where', condition, '--format', 'json');
+        assertSuccess(result, JSON.stringify([row], null, 2) + '\n');
+    }
+});
