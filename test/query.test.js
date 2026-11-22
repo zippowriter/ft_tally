@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { parseCsv } from '../src/core/csv.js';
 import { createQuery } from '../src/core/query.js';
+import { inferTypes } from '../src/core/types.js';
 
 test('run は条件を指定しないと入力順に全行を返す', () => {
     const rows = [{ genre: 'anime' }, { genre: 'news' }];
@@ -121,4 +123,25 @@ test('limit は先頭から指定件数を返し0件や過大な指定も扱う'
     assert.deepEqual(base.limit(0).run(), []);
     assert.deepEqual(base.limit(10).run(), rows);
     assert.deepEqual(base.run(), rows);
+});
+
+test('CSV の型推論から絞り込みとグループ集計と上位抽出まで実行できる', () => {
+    const csv = [
+        'device,genre,minutes',
+        'tv,news,4',
+        'tv,anime,7',
+        'pc,news,100',
+        'tv,anime,5',
+    ].join('\n');
+    const { rows } = parseCsv(csv);
+
+    const result = createQuery(inferTypes(rows))
+        .where((row) => row.device === 'tv')
+        .groupBy('genre')
+        .aggregate({ total: ['sum', 'minutes'], n: ['count'] })
+        .sortBy('total', 'desc')
+        .limit(1)
+        .run();
+
+    assert.deepEqual(result, [{ genre: 'anime', total: 12, n: 2 }]);
 });
