@@ -106,6 +106,22 @@
         expect(doc.querySelector('#result') === table && doc.defaultView === win, '同じページと表を使う');
     });
 
+    await scenario('aggregates', async (doc, win) => {
+        const csv = 'genre,minutes,score\nanime,8,30\nnews,5,4\nanime,2,10\n';
+        await loadCsv(doc, win, csv);
+        select(doc, win, '#group-column', '0');
+        select(doc, win, '#aggregate-column', '1');
+        for (const [operation, anime, news] of [['sum', '10', '5'], ['avg', '5', '5'],
+            ['min', '2', '5'], ['max', '8', '5'], ['count', '2', '1']]) {
+            select(doc, win, '#operation', operation);
+            const label = operation === 'count' ? 'count' : operation + '_minutes';
+            expectRows(doc, [['genre', label], ['anime', anime], ['news', news]]);
+        }
+        select(doc, win, '#operation', 'sum');
+        select(doc, win, '#aggregate-column', '2');
+        expectRows(doc, [['genre', 'sum_score'], ['anime', '40'], ['news', '4']]);
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

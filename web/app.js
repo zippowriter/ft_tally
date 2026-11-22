@@ -31,35 +31,64 @@ function renderTable(table, columns, rows) {
     table.hidden = false;
 }
 
-function renderResult(table, data, group) {
-    const column = group.value === '' ? undefined : data.header[Number(group.value)];
-    const base = createQuery(data.rows);
-    const query = column === undefined ? base : base.groupBy(column);
-    renderTable(table, column === undefined ? data.header : [column], query.run());
+function selectedColumn(select, header) {
+    return select.value === '' ? undefined : header[Number(select.value)];
+}
+
+function buildResult(data, ui) {
+    const group = selectedColumn(ui.group, data.header);
+    const column = selectedColumn(ui.aggregate, data.header);
+    const operation = ui.operation.value;
+    let query = createQuery(data.rows);
+    if (group !== undefined) query = query.groupBy(group);
+
+    const needsColumn = operation !== '' && operation !== 'count' && column === undefined;
+    if (operation === '' || needsColumn) {
+        return { query, columns: group === undefined ? data.header : [group], needsColumn };
+    }
+
+    const alias = operation === 'count' ? 'count' : `${operation}_${column}`;
+    const columns = group === undefined ? [alias] : [group, alias];
+    return { query: query.aggregate({ [alias]: [operation, column] }), columns, needsColumn };
+}
+
+function renderResult(ui, data) {
+    const { query, columns, needsColumn } = buildResult(data, ui);
+    const rows = query.run();
+    renderTable(ui.table, columns, rows);
+    ui.status.textContent = needsColumn ? '集計列を選択してください' : `${rows.length} 行`;
+}
+
+function getUi() {
+    return {
+        file: document.querySelector('#csv-file'),
+        conditions: document.querySelector('#conditions'),
+        group: document.querySelector('#group-column'),
+        aggregate: document.querySelector('#aggregate-column'),
+        operation: document.querySelector('#operation'),
+        table: document.querySelector('#result'),
+        status: document.querySelector('#status'),
+    };
 }
 
 function initialize() {
-    const fileInput = document.querySelector('#csv-file');
-    const conditions = document.querySelector('#conditions');
-    const group = document.querySelector('#group-column');
-    const aggregate = document.querySelector('#aggregate-column');
-    const table = document.querySelector('#result');
+    const ui = getUi();
     let data;
 
-    fileInput.addEventListener('change', async () => {
-        const file = fileInput.files[0];
+    ui.file.addEventListener('change', async () => {
+        const file = ui.file.files[0];
         if (!file) return;
         const { header, rows } = parseCsv(await file.text());
         data = { header, rows: inferTypes(rows) };
-        setColumnOptions(group, header);
-        setColumnOptions(aggregate, header);
-        renderResult(table, data, group);
-        conditions.disabled = false;
+        setColumnOptions(ui.group, header);
+        setColumnOptions(ui.aggregate, header);
+        renderResult(ui, data);
+        ui.conditions.disabled = false;
     });
-    conditions.addEventListener('change', () => {
-        if (data) renderResult(table, data, group);
+    ui.conditions.addEventListener('change', () => {
+        if (data) renderResult(ui, data);
     });
-    fileInput.disabled = false;
+    ui.file.disabled = false;
 }
 
 initialize();

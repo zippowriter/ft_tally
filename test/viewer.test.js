@@ -39,3 +39,4 @@ browserTest('initial', 'ビューアはモジュールを読み込みファイ�
 browserTest('columns', 'ビューアは CSV ヘッダーから両方の列選択肢を作る');
 browserTest('render', 'ビューアは型推論した CSV をヘッダーとデータ行に表示する');
 browserTest('groups', 'ビューアは再読み込みせずにグループ化列の変更を反映する');
+browserTest('aggregates', 'ビューアは選んだ集計列と5種類の集計方法を反映する');
