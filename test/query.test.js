@@ -165,3 +165,22 @@ test('グループ指定なしの aggregate は全行の集計を1行で返す',
     assert.deepEqual(summary.run(), [{ n: 3, total: 12 }]);
     assert.deepEqual(base.run(), rows);
 });
+
+test('数値が0件のときは集計の種類とグループ指定に応じた結果を返す', () => {
+    const aggregates = {
+        n: ['count'],
+        total: ['sum', 'minutes'],
+        mean: ['avg', 'minutes'],
+        low: ['min', 'minutes'],
+        high: ['max', 'minutes'],
+    };
+    const base = createQuery([{ genre: 'anime', minutes: null }]);
+    const emptyTotals = { n: 0, total: 0, mean: null, low: null, high: null };
+
+    assert.deepEqual(base.groupBy('genre').aggregate(aggregates).run(), [
+        { genre: 'anime', ...emptyTotals, n: 1 },
+    ]);
+    assert.deepEqual(createQuery([]).aggregate(aggregates).run(), [emptyTotals]);
+    assert.deepEqual(base.where(() => false).aggregate(aggregates).run(), [emptyTotals]);
+    assert.deepEqual(createQuery([]).groupBy('genre').aggregate(aggregates).run(), []);
+});
