@@ -40,6 +40,18 @@
         await waitFor(() => !doc.querySelector('#conditions').disabled, 'CSV の読み込み後に条件が有効になる');
     }
 
+    function captureErrors(win) {
+        const errors = [];
+        win.addEventListener('error', (event) => errors.push(event.message));
+        win.addEventListener('unhandledrejection', (event) => errors.push(String(event.reason)));
+        return errors;
+    }
+
+    function visibleError(doc) {
+        const error = doc.querySelector('[role=alert]');
+        return error.hidden ? '' : error.textContent;
+    }
+
     function tableRows(doc) {
         return Array.from(doc.querySelectorAll('#result tr'), (row) => {
             return Array.from(row.cells, (cell) => cell.textContent);
@@ -146,6 +158,15 @@
         expect(!doc.querySelector('#result b, #result img'), '表の文字列が DOM 要素に変換されない');
         expect(doc.querySelector('#group-column').options[1].textContent === '<b>見出し</b>',
             '選択肢でも元の文字列が保たれる');
+    });
+
+    await scenario('parse-error', async (doc, win) => {
+        const errors = captureErrors(win);
+        setFile(doc, win, new win.File(['genre,minutes\nanime\n'], 'broken.csv'));
+        await waitFor(() => /line 2/.test(visibleError(doc)), '行番号付きのエラーが表示される');
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(errors.length === 0, '未捕捉の例外がない');
+        expect(doc.querySelector('#result').hidden, '不正なデータの表は表示しない');
     });
 
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));

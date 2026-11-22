@@ -89,7 +89,39 @@ function getUi() {
         operation: document.querySelector('#operation'),
         table: document.querySelector('#result'),
         status: document.querySelector('#status'),
+        error: document.querySelector('#error'),
     };
+}
+
+function showError(ui, error) {
+    ui.error.textContent = error.message;
+    ui.error.hidden = false;
+    ui.status.textContent = '';
+    ui.table.hidden = true;
+}
+
+function clearError(ui) {
+    ui.error.textContent = '';
+    ui.error.hidden = true;
+}
+
+function bindFileInput(ui, onData) {
+    ui.file.addEventListener('change', async () => {
+        const file = ui.file.files[0];
+        if (!file) return;
+        clearError(ui);
+        try {
+            const { header, rows } = parseCsv(await file.text());
+            setColumnOptions(ui.group, header);
+            setColumnOptions(ui.aggregate, header);
+            ui.conditions.disabled = false;
+            onData({ header, rows: inferTypes(rows) });
+        } catch (error) {
+            ui.conditions.disabled = true;
+            showError(ui, error);
+        }
+    });
+    ui.file.disabled = false;
 }
 
 function initialize() {
@@ -101,15 +133,9 @@ function initialize() {
         if (data) sort = renderResult(ui, data, sort);
     };
 
-    ui.file.addEventListener('change', async () => {
-        const file = ui.file.files[0];
-        if (!file) return;
-        const { header, rows } = parseCsv(await file.text());
-        data = { header, rows: inferTypes(rows) };
-        setColumnOptions(ui.group, header);
-        setColumnOptions(ui.aggregate, header);
+    bindFileInput(ui, (nextData) => {
+        data = nextData;
         redraw();
-        ui.conditions.disabled = false;
     });
     ui.conditions.addEventListener('change', redraw);
     ui.table.addEventListener('click', (event) => {
@@ -120,7 +146,6 @@ function initialize() {
         sort = { column, direction };
         redraw();
     });
-    ui.file.disabled = false;
 }
 
 initialize();
