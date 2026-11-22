@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>ft_tally ビューアのテスト</title>
+<output id="results"></output>
+<script type="module">
+    const results = {};
+
+    async function openViewer() {
+        const frame = document.createElement('iframe');
+        frame.src = '../../web/index.html';
+        const loaded = new Promise((resolve) => frame.addEventListener('load', resolve, { once: true }));
+        document.body.append(frame);
+        await loaded;
+        return frame;
+    }
+
+    function expect(condition, message) {
+        if (!condition) throw new Error(message);
+    }
+
+    async function scenario(id, check) {
+        const frame = await openViewer();
+        try {
+            await check(frame.contentDocument, frame.contentWindow);
+            results[id] = '成功';
+        } catch (error) {
+            results[id] = error.message;
+        } finally {
+            frame.remove();
+        }
+    }
+
+    await scenario('initial', (doc) => {
+        const file = doc?.querySelector('#csv-file');
+        expect(file?.type === 'file' && !file.disabled, 'ファイル入力が有効になる');
+        expect(doc.querySelector('#group-column')?.matches(':disabled'), 'グループ化列は読み込みまで無効になる');
+        expect(doc.querySelector('#aggregate-column')?.matches(':disabled'), '集計列は読み込みまで無効になる');
+        expect(doc.querySelector('script[type=module][src="./app.js"]'), 'app.js を ES モジュールで読み込む');
+    });
+
+    document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
+</script>
+</html>

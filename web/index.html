@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ft_tally</title>
+    <script type="module" src="./app.js"></script>
+    <style>
+        :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+        body { max-width: 68rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+        h1 { margin: 0 0 1.5rem; }
+        input, select, button { font: inherit; }
+        fieldset {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border: 1px solid GrayText;
+            border-radius: .5rem;
+        }
+        label { display: grid; gap: .5rem; }
+        select { width: 100%; min-width: 0; padding: .4rem; }
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: start; }
+        th, td { padding: .65rem .8rem; border-bottom: 1px solid GrayText; text-align: start; }
+        td { white-space: pre-wrap; overflow-wrap: anywhere; }
+        th { background: color-mix(in srgb, Canvas 92%, CanvasText); }
+        th button { padding: .25rem 0; border: 0; background: transparent; color: inherit; cursor: pointer; }
+        th[aria-sort="ascending"] button::after { content: " ▲"; }
+        th[aria-sort="descending"] button::after { content: " ▼"; }
+        #error { color: light-dark(#9a211f, #ffaeab); }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>ft_tally</h1>
+        <label>CSV ファイル
+            <input id="csv-file" type="file" accept=".csv,text/csv" disabled>
+        </label>
+        <fieldset id="conditions" disabled>
+            <legend>集計条件</legend>
+            <label>グループ化列
+                <select id="group-column"><option value="">なし</option></select>
+            </label>
+            <label>集計方法
+                <select id="operation"><option value="">なし</option></select>
+            </label>
+            <label>集計列
+                <select id="aggregate-column"><option value="">選択してください</option></select>
+            </label>
+        </fieldset>
+        <p id="status" role="status"></p>
+        <p id="error" role="alert" hidden></p>
+        <div class="table-scroll">
+            <table id="result" aria-label="CSV の結果" hidden>
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
