@@ -35,6 +35,9 @@ function validateNumericColumns(rows, aggregates) {
         .filter(({ operation }) => operation !== 'count')
         .map(({ column }) => column);
     Array.from(new Set(columns)).forEach((column) => {
+        if (rows.length > 0 && !rows.some((row) => Object.hasOwn(row, column))) {
+            throw new Error(`未知の列: ${column}`);
+        }
         if (!isNumericColumn(rows.map((row) => row[column]))) {
             throw new Error(`数値列ではありません: ${column}`);
         }

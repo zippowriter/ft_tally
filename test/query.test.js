@@ -227,3 +227,9 @@ test('未知の集計関数を指定すると関数名を含むエラーにな�
 
     assert.throws(() => base.aggregate({ value: ['median', 'minutes'] }).run(), /median/);
 });
+
+test('集計対象に存在しない列を指定すると列名を含むエラーになる', () => {
+    const base = createQuery([{ minutes: 4 }]);
+
+    assert.throws(() => base.aggregate({ total: ['sum', 'seconds'] }).run(), /未知の列: seconds/);
+});
