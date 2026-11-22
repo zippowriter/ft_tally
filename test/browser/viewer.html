@@ -250,6 +250,16 @@
         expectRows(doc, [['sum_minutes', 'sum_minutes_2'], ['anime', '7'], ['news', '3']]);
     });
 
+    await scenario('keyboard-focus', async (doc, win) => {
+        await loadCsv(doc, win, 'minutes\n10\n2\n');
+        doc.querySelector('#result button').focus();
+        doc.activeElement.click();
+        expectRows(doc, [['minutes'], ['2'], ['10']]);
+        expect(doc.activeElement === doc.querySelector('#result button'), '再描画した見出しにフォーカスが残る');
+        doc.activeElement.click();
+        expectRows(doc, [['minutes'], ['10'], ['2']]);
+    });
+
     document.querySelector('#results').textContent = encodeURIComponent(JSON.stringify(results));
 </script>
 </html>

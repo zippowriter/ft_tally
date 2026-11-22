@@ -42,11 +42,15 @@ function makeHeader(columns, sort) {
 }
 
 function renderTable(table, columns, rows, sort) {
+    const headerFocused = table.tHead.contains(document.activeElement);
     const body = document.createDocumentFragment();
     rows.forEach((row) => body.append(makeDataRow(columns.map((column) => row[column]))));
     table.tHead.replaceChildren(makeHeader(columns, sort));
     table.tBodies[0].replaceChildren(body);
     table.hidden = false;
+    if (headerFocused) {
+        table.tHead.querySelector('th[aria-sort] button')?.focus({ preventScroll: true });
+    }
 }
 
 function selectedColumn(select, header) {
