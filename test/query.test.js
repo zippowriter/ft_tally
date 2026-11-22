@@ -74,3 +74,14 @@ test('min は欠損値を除いた最小値を返す', () => {
 
     assert.deepEqual(result, [{ genre: 'anime', low: 2 }]);
 });
+
+test('max は欠損値を除いた最大値を返す', () => {
+    const rows = [
+        { genre: 'anime', score: -4 },
+        { genre: 'anime', score: null },
+        { genre: 'anime', score: -2 },
+    ];
+    const result = createQuery(rows).groupBy('genre').aggregate({ high: ['max', 'score'] }).run();
+
+    assert.deepEqual(result, [{ genre: 'anime', high: -2 }]);
+});

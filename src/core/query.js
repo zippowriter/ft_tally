@@ -5,11 +5,11 @@ function sum(values) {
 function calculate(rows, operation, column) {
     if (operation === 'count') return rows.length;
     const values = rows.map((row) => row[column]).filter((value) => value !== null);
-    if (operation === 'avg') return values.length === 0 ? null : sum(values) / values.length;
-    if (operation === 'min') {
-        return values.length === 0 ? null : values.reduce((lowest, value) => Math.min(lowest, value));
-    }
-    return sum(values);
+    if (operation === 'sum') return sum(values);
+    if (values.length === 0) return null;
+    if (operation === 'avg') return sum(values) / values.length;
+    if (operation === 'min') return values.reduce((lowest, value) => Math.min(lowest, value));
+    return values.reduce((highest, value) => Math.max(highest, value));
 }
 
 function summarize(rows, aggregates) {
