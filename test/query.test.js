@@ -184,3 +184,27 @@ test('数値が0件のときは集計の種類とグループ指定に応じた�
     assert.deepEqual(base.where(() => false).aggregate(aggregates).run(), [emptyTotals]);
     assert.deepEqual(createQuery([]).groupBy('genre').aggregate(aggregates).run(), []);
 });
+
+test('入力と集計指定と述語に渡る行と実行結果からクエリの内部状態を変更できない', () => {
+    const rows = [{ genre: 'anime', minutes: 4 }];
+    const base = createQuery(rows);
+    const aggregates = { total: ['sum', 'minutes'] };
+    const summary = base.groupBy('genre').aggregate(aggregates);
+    const filtered = base.where((row) => {
+        row.minutes = 100;
+        return true;
+    });
+
+    const result = filtered.run();
+    assert.deepEqual(rows, [{ genre: 'anime', minutes: 4 }]);
+    result[0].genre = 'news';
+    result.push({ genre: 'news', minutes: 5 });
+    rows[0].minutes = 200;
+    rows.push({ genre: 'news', minutes: 3 });
+    aggregates.total[0] = 'count';
+    aggregates.extra = ['max', 'minutes'];
+
+    assert.deepEqual(filtered.run(), [{ genre: 'anime', minutes: 4 }]);
+    assert.deepEqual(base.run(), [{ genre: 'anime', minutes: 4 }]);
+    assert.deepEqual(summary.run(), [{ genre: 'anime', total: 4 }]);
+});

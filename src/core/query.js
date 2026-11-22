@@ -15,15 +15,15 @@ function calculate(rows, operation, column) {
 }
 
 function summarize(rows, aggregates) {
-    return Object.fromEntries(Object.entries(aggregates).map(([alias, [operation, column]]) => [
+    return Object.fromEntries(aggregates.map(([alias, [operation, column]]) => [
         alias, calculate(rows, operation, column),
     ]));
 }
 
 function validateNumericColumns(rows, aggregates) {
-    const columns = Object.values(aggregates)
-        .filter(([operation]) => operation !== 'count')
-        .map(([, column]) => column);
+    const columns = aggregates
+        .filter(([, [operation]]) => operation !== 'count')
+        .map(([, [, column]]) => column);
     Array.from(new Set(columns)).forEach((column) => {
         if (!isNumericColumn(rows.map((row) => row[column]))) {
             throw new Error(`数値列ではありません: ${column}`);
@@ -33,15 +33,15 @@ function validateNumericColumns(rows, aggregates) {
 
 function selectRows(rows, { predicates, groupColumn, aggregates }) {
     if (aggregates !== undefined) validateNumericColumns(rows, aggregates);
-    const filtered = rows.filter((row) => predicates.every((predicate) => predicate(row)));
+    const filtered = rows.filter((row) => predicates.every((predicate) => predicate({ ...row })));
     if (groupColumn === undefined) {
-        return aggregates === undefined ? filtered : [summarize(filtered, aggregates)];
+        return aggregates === undefined ? filtered.map((row) => ({ ...row })) : [summarize(filtered, aggregates)];
     }
 
     const groups = Map.groupBy(filtered, (row) => row[groupColumn]);
     return Array.from(groups, ([key, members]) => ({
         [groupColumn]: key,
-        ...summarize(members, aggregates ?? {}),
+        ...summarize(members, aggregates ?? []),
     }));
 }
 
@@ -67,7 +67,10 @@ function buildQuery(rows, options) {
             predicates: [...options.predicates, predicate],
         }),
         groupBy: (groupColumn) => buildQuery(rows, { ...options, groupColumn }),
-        aggregate: (aggregates) => buildQuery(rows, { ...options, aggregates }),
+        aggregate: (specification) => buildQuery(rows, {
+            ...options,
+            aggregates: Object.entries(specification).map(([alias, fields]) => [alias, [...fields]]),
+        }),
         sortBy: (column, direction) => buildQuery(rows, { ...options, sort: [column, direction] }),
         limit: (maximum) => buildQuery(rows, { ...options, maximum }),
         run: () => runQuery(rows, options),
@@ -75,5 +78,5 @@ function buildQuery(rows, options) {
 }
 
 export function createQuery(rows) {
-    return buildQuery(rows, { predicates: [] });
+    return buildQuery(rows.map((row) => ({ ...row })), { predicates: [] });
 }
