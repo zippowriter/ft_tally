@@ -85,3 +85,9 @@ test('parseCsv は閉じていない引用符のエラーにレコードの開�
 
     assert.throws(() => parseCsv(text), /\bline 3\b/);
 });
+
+test('parseCsv は列が足りないレコードのエラーに開始行を含める', () => {
+    const text = 'id,note\n001,ok\n002\n';
+
+    assert.throws(() => parseCsv(text), /\bline 3\b/);
+});

@@ -1,3 +1,11 @@
+function finishRecord(state) {
+    state.columns.push(state.column);
+    state.records.push({ cells: state.columns, line: state.recordLine });
+    state.columns = [];
+    state.column = '';
+    state.recordLine = state.line;
+}
+
 function readCharacter(state, character, index, characters) {
     const isLineBreak = character === '\n' || character === '\r\n';
     if (isLineBreak) state.line += 1;
@@ -11,11 +19,7 @@ function readCharacter(state, character, index, characters) {
         state.columns.push(state.column);
         state.column = '';
     } else if (isLineBreak && !state.inQuotes) {
-        state.columns.push(state.column);
-        state.records.push(state.columns);
-        state.columns = [];
-        state.column = '';
-        state.recordLine = state.line;
+        finishRecord(state);
     } else {
         state.column += character;
     }
@@ -28,18 +32,18 @@ function parseRecords(text) {
     characters.forEach((character, index) => readCharacter(state, character, index, characters));
 
     if (state.inQuotes) throw new Error(`Unclosed quote at line ${state.recordLine}`);
-    if (text.endsWith('\n')) return records;
-
-    state.columns.push(state.column);
-    records.push(state.columns);
+    if (!text.endsWith('\n')) finishRecord(state);
     return records;
 }
 
 export function parseCsv(text) {
-    const [header, ...dataRecords] = parseRecords(text);
-    const rows = dataRecords.map((cells) =>
-        Object.fromEntries(header.map((column, index) => [column, cells[index]])),
-    );
+    const [{ cells: header }, ...dataRecords] = parseRecords(text);
+    const rows = dataRecords.map(({ cells, line }) => {
+        if (cells.length < header.length) {
+            throw new Error(`Expected ${header.length} columns, found ${cells.length} at line ${line}`);
+        }
+        return Object.fromEntries(header.map((column, index) => [column, cells[index]]));
+    });
 
     return { header, rows };
 }
